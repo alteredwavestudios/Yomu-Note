@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing pushed tag to rebuild (e.g. v0.8.1b)'
+        description: 'Existing pushed tag to rebuild (e.g. v0.8.2)'
         required: true
-        default: 'v0.8.1b'
+        default: 'v0.8.2'
 permissions:
   contents: read
 # Ensure Windows Python reads source as UTF-8, not cp1252.
@@ -53,7 +53,7 @@ jobs:
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
           New-Item -ItemType Directory -Force release-assets | Out-Null
-          Copy-Item installer\YomuNote_Setup_v0.8.1b.exe release-assets\
+          Copy-Item installer\YomuNote_Setup_v0.8.2.exe release-assets\
       - uses: actions/upload-artifact@v4
         with:
           name: YomuNote-Windows-Setup
@@ -123,9 +123,9 @@ jobs:
         run: |
           set -euo pipefail
           ls -lh release-assets
-          test -s release-assets/YomuNote_Setup_v0.8.1b.exe
-          test -s release-assets/YomuNote-0.8.1b-macOS-arm64-unsigned.dmg
-          test -s release-assets/YomuNote-0.8.1b-macOS-x86_64-unsigned.dmg
+          test -s release-assets/YomuNote_Setup_v0.8.2.exe
+          test -s release-assets/YomuNote-0.8.2-macOS-arm64-unsigned.dmg
+          test -s release-assets/YomuNote-0.8.2-macOS-x86_64-unsigned.dmg
           ( cd release-assets && sha256sum * > SHA256SUMS.txt )
       - name: Create unpublished draft with installers
         shell: bash
@@ -137,5 +137,5 @@ jobs:
           gh release create "$RELEASE_TAG" release-assets/* \
             --verify-tag --draft --prerelease \
             --title "Yomu Note $RELEASE_TAG (pre-release)" \
-            --notes-file RELEASE_NOTES_v0.8.1b.md
+            --notes-file RELEASE_NOTES_v0.8.2.md
           echo 'Open the draft release, verify each download, then publish manually.' >> "$GITHUB_STEP_SUMMARY"

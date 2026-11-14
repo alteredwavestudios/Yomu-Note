@@ -39,13 +39,13 @@ Do **not** include a real notebook `.yomunote`, API tokens, passwords, signing k
 Once the `main` branch is on GitHub and the native build dependencies are ready, create and push the exact tag:
 
 ```powershell
-git tag v0.8.1b-rc4
-git push origin v0.8.1b-rc4
+git tag v0.8.2-rc1
+git push origin v0.8.2-rc1
 ```
 
 That triggers `.github/workflows/release.yml`. Check **Actions** for the Windows, Mac ARM and Mac Intel packaging jobs. Linux source tests continue separately under **Check source**. The workflow builds the three native installer variants on GitHub-hosted machines and runs tests/packaged-OCR verification. **A green workflow is not equivalent to a clean-machine GUI test.**
 
-When all jobs succeed, GitHub automatically creates an **unpublished draft Release** with the three native installer binaries and SHA256 checksums. Open **Releases → Drafts**, download each asset, test it on a clean machine, and then choose **Publish release**. Keep **Pre-release** checked for v0.8.1b.
+When all jobs succeed, GitHub automatically creates an **unpublished draft Release** with the three native installer binaries and SHA256 checksums. Open **Releases → Drafts**, download each asset, test it on a clean machine, and then choose **Publish release**. Keep **Pre-release** checked for v0.8.2-rc1.
 
 If a job fails, **do not publish the release**. Inspect that job's logs, fix the build, and produce a fresh candidate tag or rerun the same tag after a safe CI-only fix. Avoid silently moving an already published tag.
 

@@ -7,23 +7,26 @@
 
   *Import readings. Highlight pages. Write notes. Tick off your progress. Share a whole week's materials with your classmates.*
 
-  **v0.8.1b · Public preview / pre-1.0**
+  **v0.8.2 source · Next public preview in preparation · pre-1.0**
 </div>
 
 ## ⬇️ Get Yomu Note
 
-**v0.8.1b public preview (release candidate)** · [GitHub Releases](https://github.com/alteredwavestudios/Yomu-Note/releases)
+**Currently published installers: v0.8.1b-rc4.** The next release,
+**v0.8.2 with Reading View Memory**, is in testing. Its installers aren't
+publicly available until the draft release is verified and published.
 
-The next installer release is under review. **Draft releases are not public downloads.** Once a candidate has passed installation checks and been published, its files will appear on the Releases page.
-
-| Platform | Distribution | Installation |
+| Platform | Download (currently published v0.8.1b-rc4) | Installation |
 | --- | --- | --- |
-| **Windows 10/11 (64-bit)** | Setup EXE (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases), install, then launch from Start |
-| **macOS — Apple Silicon (M-series)** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases) and drag Yomu Note to Applications |
-| **macOS — Intel** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases) and drag Yomu Note to Applications |
-| **Linux** | **Install/run from GitHub source** (no AppImage) | Follow the [Linux source instructions](docs/INSTALL.md) |
+| **Windows 10/11 (64-bit)** | [Download Windows installer (.exe)](https://github.com/alteredwavestudios/Yomu-Note/releases/download/v0.8.1b-rc4/YomuNote_Setup_v0.8.1b.exe) | Install and launch from Start |
+| **macOS — Apple Silicon (M-series)** | [Download Apple Silicon (.dmg)](https://github.com/alteredwavestudios/Yomu-Note/releases/download/v0.8.1b-rc4/YomuNote-0.8.1b-macOS-arm64-unsigned.dmg) | Drag Yomu Note to Applications |
+| **macOS — Intel** | [Download Intel Mac (.dmg)](https://github.com/alteredwavestudios/Yomu-Note/releases/download/v0.8.1b-rc4/YomuNote-0.8.1b-macOS-x86_64-unsigned.dmg) | Drag Yomu Note to Applications |
+| **Linux** | [Run/build from source](docs/INSTALL.md) (no AppImage) | Follow the Linux instructions |
 
-> **Preview release:** Windows and macOS builds are unsigned, and the Mac builds are not notarised, so system security prompts may appear. GitHub's automatic “Source code” ZIPs are not native installers. Native packages still require clean-machine acceptance testing. See [installation and troubleshooting](docs/INSTALL.md).
+> **Preview release:** Windows and macOS installers are unsigned; macOS builds
+> are not notarised. The current installer does **not** yet include v0.8.2's
+> Reading View Memory feature. See [all releases](https://github.com/alteredwavestudios/Yomu-Note/releases) and
+> [installation help](docs/INSTALL.md).
 
 ## Take a look
 
@@ -64,6 +67,7 @@ Choose your theme, typography and how lively you want the reading rewards to fee
 - **Portable, shareable notebooks:** Full `.yomunote` projects and individual tab exchange, with one-step Undo/Redo for imported batches.
 - **Smart Import 3.0:** Choose PDF page ranges and bookmark chapters, or keep all pages by default.
 - **Reading navigator:** Nested groups, page thumbnails, drag-and-drop ordering, titles and reading progress.
+- **Reading View Memory (v0.8.2 source):** Remember each page’s scroll position and share zoom across a root group, with individual overrides.
 - **Document annotation:** Highlights, drawings, shapes and page-relative annotations.
 - **Rich-text notes:** Multiple notes pages per tab, tables, links, typography, formatting and editor Undo/Redo.
 - **Offline OCR:** Text extraction from PDF/image selections with adjustable DPI and a review-and-copy step.
@@ -91,6 +95,7 @@ See the illustrated **[5-minute quick start](docs/QUICK_START.md)** for the main
 - [Beginner's architecture walkthrough](BEGINNERS_ARCHITECTURE_GUIDE.md)
 - [Contributing and running tests](CONTRIBUTING.md)
 - [Security and responsible disclosure](SECURITY.md)
+- [Upcoming v0.8.2 release notes](RELEASE_NOTES_v0.8.2.md)
 - [v0.8.1b release notes](RELEASE_NOTES_v0.8.1b.md)
 - [Previous versions and QA notes](docs/HISTORY.md)
 

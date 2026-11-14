@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 arch="${1:-$(uname -m)}"
-version="0.8.1b"
+version="0.8.2"
 app="$PWD/dist/Yomu Note.app"
 [[ -d "$app" ]] || { echo "Missing built application: $app" >&2; exit 1; }
 mkdir -p release-assets
