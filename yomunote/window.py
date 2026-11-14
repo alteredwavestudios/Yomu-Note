@@ -38,6 +38,10 @@ from .ui import FlowLayout, WrapBar, YomuWordmark, SaveToast, SoftButtonMotion, 
 from .importers import (ALL_EXTS, blank_page, import_document, image_for_page,
                         clear_obsolete_preview_tiers, LARGE_THUMB_MAX_WIDTH)
 from .project import Project, PANEL_KEYS, valid_panel_order, short_id, validated_note_pages
+from .reading_view import (empty_view, effective_zoom, remember_zoom,
+                           normalise_zoom, fit_zoom, root_for_page,
+                           root_for_group, pages_in_group,
+                           set_page_independent, set_root_shared)
 from .page_groups_ui import PageGroupsTree, ROLE_KIND, ROLE_ID
 from .reading_progress import (group_counts, set_read_status,
                                percentage, notebook_totals)
@@ -1244,6 +1248,8 @@ class ImageCanvas(QGraphicsView):
         self.verticalScrollBar().valueChanged.connect(self._schedule_bicubic)
         self.horizontalScrollBar().valueChanged.connect(self._schedule_bicubic)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # Previously unvisited fitted pages begin flush with the top.
+        self.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
@@ -2421,6 +2427,69 @@ class ImageCanvas(QGraphicsView):
         self.fit_page()
         return not pixmap.isNull()
 
+    def capture_reading_position(self):
+        """Save the scene coordinate at the viewport's top-left (not scrollbar px)."""
+        if self.image_item.pixmap().isNull():
+            return None
+        rect = self._page_bounds()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return None
+        top_left = self.mapToScene(QPoint(0, 0))
+        x = max(0.0, min(1.0, (top_left.x() - rect.left()) / rect.width()))
+        y = max(0.0, min(1.0, (top_left.y() - rect.top()) / rect.height()))
+        vertical = self.verticalScrollBar()
+        return {'x': round(x, 7), 'y': round(y, 7),
+                'bottom': (vertical.maximum() > 0 and
+                           vertical.value() >= vertical.maximum() - 2)}
+
+    def apply_reading_zoom(self, saved):
+        """Apply Fit or absolute view scale; never render an extra PDF bitmap."""
+        if self.image_item.pixmap().isNull():
+            return
+        if not saved or saved.get('mode') != 'manual':
+            self.fit_page()
+            return
+        level = float(saved.get('scale', 1.0))
+        if not math.isfinite(level) or not 0.03 <= level <= 15:
+            self.fit_page()
+            return
+        self._fit = False
+        self.resetTransform()
+        self.scale(level, level)
+        self._emit_zoom()
+
+    def restore_reading_position(self, saved=None, *, start_at_top=True):
+        """Reposition using page-relative coordinates across window sizes/DPI.
+
+        An unvisited page begins at its top edge, with horizontal centring.
+        Previously visited pages use their own scroll memory, never a group
+        scroll position. If the viewport is taller than the image, alignment
+        rules are used rather than inventing empty scroll range.
+        """
+        if self.image_item.pixmap().isNull():
+            return
+        rect = self._page_bounds()
+        if rect.isEmpty():
+            return
+        scale = max(0.0001, abs(self.transform().m11()))
+        visible_w = max(1, self.viewport().width()) / scale
+        visible_h = max(1, self.viewport().height()) / scale
+        range_x = max(0.0, rect.width() - visible_w)
+        range_y = max(0.0, rect.height() - visible_h)
+        if saved:
+            x = max(0.0, min(1.0, float(saved.get('x', 0.0)))) * rect.width()
+            y = max(0.0, min(1.0, float(saved.get('y', 0.0)))) * rect.height()
+            if saved.get('bottom'):
+                y = range_y
+        else:
+            x = range_x * .5  # centre columns on an unvisited zoomed page
+            y = 0.0 if start_at_top else range_y * .5
+        x = min(range_x, max(0.0, x))
+        y = min(range_y, max(0.0, y))
+        self.centerOn(QPointF(rect.left() + x + visible_w * .5,
+                              rect.top() + y + visible_h * .5))
+        self._schedule_bicubic()
+
     def fit_page(self):
         self._fit = True
         self.resetTransform()
@@ -2540,6 +2609,15 @@ class ProjectPane(QWidget):
         self._thumb_pending: set[tuple[int, str]] = set()
         self._thumb_failed: set[str] = set()
         self._preview_token = 0
+        # Tracks the image actually on canvas (selection changes first).
+        self._view_displayed_page_id = None
+        self._session_reading_view = empty_view()
+        self._view_restoring = False
+        self._view_scroll_timer = QTimer(self)
+        self._view_scroll_timer.setSingleShot(True)
+        self._view_scroll_timer.setInterval(650)
+        self._view_scroll_timer.timeout.connect(
+            self._capture_displayed_reading_position)
         self._quality_token = 0
         self._quality_level = 1.0
         self._normal_preview_path = None
@@ -2855,6 +2933,10 @@ class ProjectPane(QWidget):
         remembered_pen_width = max(.5, min(30., remembered_pen_width))
         self.canvas.tool_styles['pen']['width'] = remembered_pen_width / 1000
         self.canvas.zoomChanged.connect(self._on_preview_zoom)
+        self.canvas.verticalScrollBar().valueChanged.connect(
+            self._reading_scroll_moved)
+        self.canvas.horizontalScrollBar().valueChanged.connect(
+            self._reading_scroll_moved)
         controls = WrapBar('Preview controls')
         controls.addIconAction('zoom-out', f'Zoom out · {PRIMARY}−', lambda: self.canvas.zoom(0.8))
         controls.addIconAction('zoom-in', f'Zoom in · {PRIMARY}+', lambda: self.canvas.zoom(1.25))
@@ -4399,6 +4481,13 @@ class ProjectPane(QWidget):
                            lambda gid=group_id: self.ungroup_page_group(gid))
             menu.addAction('Delete group AND pages…',
                            lambda gid=group_id: self.delete_page_group(gid))
+        if item is not None and item.data(0, ROLE_KIND) == 'page':
+            self._reading_page_menu(menu, item.data(0, ROLE_ID))
+        if group_id:
+            selected_groups = [i.data(0, ROLE_ID) for i in
+                self.group_tree.selectedItems()
+                if i.data(0, ROLE_KIND) == 'group']
+            self._reading_group_menu(menu, selected_groups or [group_id])
         if self.group_tree.selected_page_ids():
             move_menu = menu.addMenu('Move selected pages into…')
             for group in self._walk_groups():
@@ -4436,6 +4525,10 @@ class ProjectPane(QWidget):
         # The result will remain available when this tab is reactivated.
         if hasattr(self, 'ocr_bar') and self.ocr_bar.isVisible():
             self.leave_ocr_mode(cancel_running=False)
+        self._capture_displayed_reading_position()
+        self._view_scroll_timer.stop()
+        self._view_displayed_page_id = None
+        self._view_restoring = True
         self._active = False
         self._generation += 1
         self._preview_token += 1
@@ -4451,6 +4544,7 @@ class ProjectPane(QWidget):
         self._thumb_pending.clear()
         self._wanted_thumbnail_ids = frozenset()
         self.canvas.show_image(None)
+        self._view_restoring = False
 
     def select_page_id(self, page_id: str):
         row = next((i for i,p in enumerate(self.project.pages) if p['id'] == page_id), -1)
@@ -4484,6 +4578,12 @@ class ProjectPane(QWidget):
         self.schedule_save()
 
     def display_current(self):
+        # Selection already points to the NEXT page. Capture the
+        # actual displayed page before clearing its graphics scene.
+        self._capture_displayed_reading_position()
+        self._view_scroll_timer.stop()
+        self._view_displayed_page_id = None
+        self._view_restoring = True
         self._preview_token += 1
         self._quality_token += 1
         self._clarity_token += 1
@@ -4496,6 +4596,7 @@ class ProjectPane(QWidget):
         self.canvas.show_image(None)
         page = self.current_page()
         if not page or not self._active:
+            self._view_restoring = False
             return
         self.statusMessage.emit('Loading page…')
         def worker():
@@ -4506,6 +4607,7 @@ class ProjectPane(QWidget):
             if token != self._preview_token or not self._active:
                 return
             if error:
+                self._view_restoring = False
                 self.statusMessage.emit('Could not render page: ' + error)
             elif path:
                 if self.canvas.show_image(path):
@@ -4515,12 +4617,18 @@ class ProjectPane(QWidget):
                     self._clarity_token += 1
                     self._clarity_applied_signature = None
                     self.canvas.set_annotations(self.project.annotations.get(page['id'], []))
+                    self._view_displayed_page_id = page['id']
+                    # Defer until layout/scroll ranges are stable; stale
+                    # callbacks are rejected using the render token.
+                    QTimer.singleShot(0, lambda pid=page['id'], ticket=token:
+                        self._apply_loaded_reading_view(pid, ticket))
                     # The first fit-page emission preceded _normal_preview_path;
                     # schedule progressive quality now that the base is known.
                     self._quality_timer.start()
                     self.statusMessage.emit('Page ready')
                     self.prefetch_neighbours(token)
                 else:
+                    self._view_restoring = False
                     self.statusMessage.emit('Could not decode the cached page preview.')
         start_task(self, worker, done, priority=3)
 
@@ -4535,6 +4643,204 @@ class ProjectPane(QWidget):
                         return None
                     return image_for_page(self.project, page, thumbnail=False)
                 start_task(self, worker, lambda *_: None, priority=-3)
+
+    # --- Reading View Memory: per-page scroll, inherited root-group zoom ---
+    def _reading_flag(self, key, default=True):
+        value = self.settings.value(key, 'true' if default else 'false')
+        return str(value).lower() in ('true', '1', 'yes')
+
+    def _reading_data(self):
+        # An opt-out still remembers scroll/zoom during this open session,
+        # but never writes those ephemeral values into a saved notebook.
+        if not self._reading_flag('readingViewPersist'):
+            return self._session_reading_view
+        if not isinstance(self.project.reading_view, dict):
+            self.project.reading_view = empty_view()
+        for key, fallback in empty_view().items():
+            if key not in self.project.reading_view:
+                self.project.reading_view[key] = fallback
+        return self.project.reading_view
+
+    def _reading_scroll_moved(self, *_):
+        if (self._view_restoring or not self._view_displayed_page_id
+                or not self._active or not self._reading_flag('readingViewRememberScroll')):
+            return
+        # One 650ms idle snapshot; never serialize on every trackpad pixel.
+        self._view_scroll_timer.start()
+
+    def _capture_displayed_reading_position(self):
+        pid = self._view_displayed_page_id
+        if (not pid or self._view_restoring
+                or not self._reading_flag('readingViewRememberScroll')):
+            return
+        position = self.canvas.capture_reading_position()
+        if position is None:
+            return
+        positions = self._reading_data()['positions']
+        if positions.get(pid) != position:
+            positions[pid] = position
+            self.schedule_save()
+
+    def _record_visible_reading_zoom(self, percentage, is_fit):
+        pid = self._view_displayed_page_id
+        if not pid or self._view_restoring or not self._active or percentage <= 0:
+            return
+        state = {'mode': 'fit'} if is_fit else {
+            'mode': 'manual', 'scale': percentage / 100.0}
+        view = self._reading_data()
+        prior = effective_zoom(view, self.project.page_groups, pid,
+                               self._reading_flag('readingViewSharedZoom'))
+        if prior != normalise_zoom(state):
+            remember_zoom(view, self.project.page_groups, pid, state,
+                          self._reading_flag('readingViewSharedZoom'))
+            self.schedule_save()
+        self._reading_scroll_moved()
+
+    def _apply_loaded_reading_view(self, pid, token):
+        # This is deferred until Qt has laid out the real canvas viewport.
+        # A late worker or rapid page switch must NEVER apply stale state.
+        current = self.current_page()
+        if (token != self._preview_token or not self._active
+                or self._view_displayed_page_id != pid
+                or current is None or current['id'] != pid):
+            return
+        self._view_restoring = True
+        try:
+            view = self._reading_data()
+            zoom = effective_zoom(view, self.project.page_groups, pid,
+                                  self._reading_flag('readingViewSharedZoom'))
+            self.canvas.apply_reading_zoom(zoom)
+            position = (view['positions'].get(pid)
+                        if self._reading_flag('readingViewRememberScroll') else None)
+            self.canvas.restore_reading_position(position,
+                start_at_top=self._reading_flag('readingViewStartAtTop'))
+        finally:
+            self._view_restoring = False
+
+    def _refresh_visible_reading_view(self):
+        # Used after an explicit context-menu reset or inheritance toggle.
+        pid = self._view_displayed_page_id
+        if pid and self._active and not self.canvas.image_item.pixmap().isNull():
+            self._view_scroll_timer.stop()
+            self._apply_loaded_reading_view(pid, self._preview_token)
+
+    def _change_page_zoom_sharing(self, page_id, independent):
+        view = self._reading_data()
+        set_page_independent(view, self.project.page_groups, page_id,
+                             independent, self._reading_flag('readingViewSharedZoom'))
+        self.schedule_save()
+        if page_id == self._view_displayed_page_id:
+            self._refresh_visible_reading_view()
+
+    def _reset_page_reading_state(self, page_id, kind):
+        view = self._reading_data()
+        if kind == 'position':
+            view['positions'].pop(page_id, None)
+        else:
+            root = root_for_page(self.project.page_groups, page_id)
+            if root:
+                set_page_independent(view, self.project.page_groups, page_id, True)
+            view['page_zooms'][page_id] = fit_zoom()
+        self.schedule_save()
+        if page_id == self._view_displayed_page_id:
+            self._refresh_visible_reading_view()
+
+    def _reading_page_menu(self, menu, page_id):
+        view = self._reading_data()
+        sub = menu.addMenu('Reading view')
+        root = root_for_page(self.project.page_groups, page_id)
+        if root:
+            independent = page_id in view['independent_pages']
+            use_group = sub.addAction('Use group zoom')
+            use_group.setCheckable(True)
+            use_group.setChecked(not independent and
+                root not in view['unshared_roots'])
+            use_group.triggered.connect(
+                lambda checked=False, pid=page_id:
+                self._change_page_zoom_sharing(pid, False))
+            use_independent = sub.addAction('Use independent zoom')
+            use_independent.setCheckable(True)
+            use_independent.setChecked(independent or
+                root in view['unshared_roots'])
+            use_independent.triggered.connect(
+                lambda checked=False, pid=page_id:
+                self._change_page_zoom_sharing(pid, True))
+            sub.addSeparator()
+        sub.addAction('Reset this page zoom to Fit',
+            lambda _=False, pid=page_id:
+                self._reset_page_reading_state(pid, 'zoom'))
+        sub.addAction('Reset this page reading position',
+            lambda _=False, pid=page_id:
+                self._reset_page_reading_state(pid, 'position'))
+
+    def _toggle_root_zoom_sharing(self, roots, shared):
+        view = self._reading_data()
+        for root in roots:
+            set_root_shared(view, self.project.page_groups, root, shared)
+        self.schedule_save()
+        self._refresh_visible_reading_view()
+
+    def _reset_group_reading_state(self, group_ids, kind):
+        view = self._reading_data()
+        all_pages = set()
+        roots = set()
+        for gid in group_ids:
+            all_pages.update(pages_in_group(self.project.page_groups, gid))
+            root = root_for_group(self.project.page_groups, gid)
+            if root:
+                roots.add(root)
+        if kind in ('positions', 'all'):
+            for page_id in all_pages:
+                view['positions'].pop(page_id, None)
+        if kind in ('zoom', 'all'):
+            # A subgroup inherits its root's zoom. Resetting that zoom affects
+            # the other pages of the same root group, as expected.
+            for root in roots:
+                view['group_zooms'][root] = fit_zoom()
+        if kind in ('overrides', 'zoom', 'all'):
+            independent = set(view['independent_pages'])
+            independent.difference_update(all_pages)
+            view['independent_pages'] = sorted(independent)
+            for page_id in all_pages:
+                view['page_zooms'].pop(page_id, None)
+        if kind == 'all':
+            view['unshared_roots'] = sorted(
+                set(view['unshared_roots']) - roots)
+        self.schedule_save()
+        if self._view_displayed_page_id in all_pages or kind in ('zoom', 'all'):
+            self._refresh_visible_reading_view()
+
+    def _reading_group_menu(self, menu, group_ids):
+        group_ids = list(dict.fromkeys(group_ids))
+        roots = sorted({root_for_group(self.project.page_groups, gid)
+                        for gid in group_ids} - {None})
+        if not roots:
+            return
+        view = self._reading_data()
+        label = ('Reading view · selected groups' if len(group_ids) > 1
+                 else 'Reading view · group')
+        sub = menu.addMenu(label)
+        sharing = all(root not in view['unshared_roots'] for root in roots)
+        shared_action = sub.addAction('Share zoom across root group')
+        shared_action.setCheckable(True)
+        shared_action.setChecked(sharing)
+        shared_action.triggered.connect(
+            lambda checked, selected=tuple(roots):
+                self._toggle_root_zoom_sharing(selected, checked))
+        sub.addSeparator()
+        sub.addAction('Reset group zoom to Fit',
+            lambda _=False, selected=tuple(group_ids):
+                self._reset_group_reading_state(selected, 'zoom'))
+        sub.addAction('Reset reading positions',
+            lambda _=False, selected=tuple(group_ids):
+                self._reset_group_reading_state(selected, 'positions'))
+        sub.addAction('Clear individual zoom overrides',
+            lambda _=False, selected=tuple(group_ids):
+                self._reset_group_reading_state(selected, 'overrides'))
+        sub.addSeparator()
+        sub.addAction('Reset all reading view settings',
+            lambda _=False, selected=tuple(group_ids):
+                self._reset_group_reading_state(selected, 'all'))
 
     def _on_preview_zoom(self, percentage: float, is_fit: bool):
         # Invalidate any *in-flight* image before the 260 ms debounce runs.
@@ -4552,6 +4858,7 @@ class ProjectPane(QWidget):
                  if percentage else '—'))
         if self._active and self._normal_preview_path and percentage > 0:
             self._quality_timer.start()
+        self._record_visible_reading_zoom(percentage, is_fit)
 
     def _update_adaptive_quality(self):
         """One small on-demand render matching any settled zoom below 100%.
@@ -5132,6 +5439,8 @@ class ProjectPane(QWidget):
                 lambda _=False, pid=clicked_id, value=not completed:
                 self._toggle_read_status('page', pid, value))
             menu.addSeparator()
+        if item is not None:
+            self._reading_page_menu(menu, clicked_id)
         link = menu.addAction(f'↗ Link page in notes  ·  {docs_shortcut("page_link")}')
         link.setEnabled(self.current_page() is not None)
         link.triggered.connect(self.link_current_page)
@@ -6651,6 +6960,7 @@ class ProjectPane(QWidget):
             self._save_timer.start()  # retry next minute, not every 5 seconds
 
     def save(self):
+        self._capture_displayed_reading_position()
         # Serialise only; never call setHtml()/reload the editor here, because
         # that would destroy its native QTextDocument undo/redo history.
         html = self.notes.html()
@@ -8511,6 +8821,19 @@ class MainWindow(QMainWindow):
         clarity.setToolTip('Only the current page below 100%; at most 1.5 MP, in memory. '
                            'No new cache files or document changes.')
         layout.addWidget(clarity)
+        layout.addWidget(QLabel('Reading view memory'))
+        shared_zoom = QCheckBox('Share zoom across pages in the same root group')
+        shared_zoom.setChecked(str(self.settings.value('readingViewSharedZoom', 'true')).lower() == 'true')
+        layout.addWidget(shared_zoom)
+        remember_scroll = QCheckBox('Remember each page’s reading position')
+        remember_scroll.setChecked(str(self.settings.value('readingViewRememberScroll', 'true')).lower() == 'true')
+        layout.addWidget(remember_scroll)
+        persist_view = QCheckBox('Restore reading positions and zoom when reopening notebooks')
+        persist_view.setChecked(str(self.settings.value('readingViewPersist', 'true')).lower() == 'true')
+        layout.addWidget(persist_view)
+        start_top = QCheckBox('Start previously unvisited pages at the top')
+        start_top.setChecked(str(self.settings.value('readingViewStartAtTop', 'true')).lower() == 'true')
+        layout.addWidget(start_top)
         layout.addWidget(QLabel('Yomu Focus · gentle chiptune sounds in E♭ major'))
         focus_sounds = QCheckBox('Play original 3-second jingles when sessions end')
         focus_sounds.setChecked(str(self.settings.value('focusSounds', 'true')).lower() == 'true')
@@ -8580,6 +8903,10 @@ class MainWindow(QMainWindow):
             self.settings.setValue('readingMilestones', reading_milestones.isChecked())
             self.settings.setValue('readingCelebrationMotion', reading_motion.currentData())
             self.settings.setValue('previewClarity', clarity.currentData())
+            self.settings.setValue('readingViewSharedZoom', shared_zoom.isChecked())
+            self.settings.setValue('readingViewRememberScroll', remember_scroll.isChecked())
+            self.settings.setValue('readingViewPersist', persist_view.isChecked())
+            self.settings.setValue('readingViewStartAtTop', start_top.isChecked())
             self.settings.setValue('backupDirectory', backup_dir.text().strip() or str(default_backup_folder()))
             self.settings.setValue('backupCount', backup_count.value())
             self.settings.setValue('focusSounds', focus_sounds.isChecked())
