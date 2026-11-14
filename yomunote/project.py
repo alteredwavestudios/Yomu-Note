@@ -17,6 +17,7 @@ from .vector_marks import valid_stroke, valid_shape, valid_highlight
 from .notes_layout import NotesPageSetup
 from .page_groups import validate as validate_page_groups, flat_tree, reconcile
 from .reading_progress import validated_read_ids
+from .reading_view import clean_reading_view
 
 FORMAT_VERSION = 4
 PANEL_KEYS = ('pages', 'preview', 'notes')
@@ -147,6 +148,8 @@ class Project:
     identifier: str = field(default_factory=short_id)
     annotations: dict[str, list[dict]] = field(default_factory=dict)
     highlight_color: str = '#ffcf69'
+    # Cosmetic per-page reading position and root-group zoom state.
+    reading_view: dict = field(default_factory=dict)
     loaded_version: int = field(default=FORMAT_VERSION, repr=False)
 
     @classmethod
@@ -314,6 +317,8 @@ class Project:
                 recovery_warnings.append(f'{path.name}: reset invalid column widths')
         return cls(path=path, name=name or path.stem,
                    pages=pages, page_groups=hierarchy,
+                   reading_view=clean_reading_view(
+                       data.get('reading_view'), pages, hierarchy),
                    read_page_ids=read_page_ids,
                    notes_html=notes_html, note_pages=note_pages,
                    active_note_id=active_note_id, notes_scroll=notes_scroll,
@@ -358,6 +363,8 @@ class Project:
             'app_version': __version__,  # app release, not project schema
             'id': self.identifier, 'name': self.name, 'pages': self.pages,
             'page_groups': self.page_groups,
+            'reading_view': clean_reading_view(
+                self.reading_view, self.pages, self.page_groups),
             # Session Undo may still reference removed pages.  Save only
             # completion flags belonging to current, live pages.
             'read_page_ids': sorted(
