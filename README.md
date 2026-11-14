@@ -12,15 +12,15 @@
 
 ## ⬇️ Get Yomu Note
 
-**v0.8.1b public preview (release candidate)** · [GitHub Releases](https://github.com/alteredwavestudios/Yomu-Note-Release/releases)
+**v0.8.1b public preview (release candidate)** · [GitHub Releases](https://github.com/alteredwavestudios/Yomu-Note/releases)
 
 The next installer release is under review. **Draft releases are not public downloads.** Once a candidate has passed installation checks and been published, its files will appear on the Releases page.
 
 | Platform | Distribution | Installation |
 | --- | --- | --- |
-| **Windows 10/11 (64-bit)** | Setup EXE (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note-Release/releases), install, then launch from Start |
-| **macOS — Apple Silicon (M-series)** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note-Release/releases) and drag Yomu Note to Applications |
-| **macOS — Intel** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note-Release/releases) and drag Yomu Note to Applications |
+| **Windows 10/11 (64-bit)** | Setup EXE (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases), install, then launch from Start |
+| **macOS — Apple Silicon (M-series)** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases) and drag Yomu Note to Applications |
+| **macOS — Intel** | DMG (when published) | Download from [Releases](https://github.com/alteredwavestudios/Yomu-Note/releases) and drag Yomu Note to Applications |
 | **Linux** | **Install/run from GitHub source** (no AppImage) | Follow the [Linux source instructions](docs/INSTALL.md) |
 
 > **Preview release:** Windows and macOS builds are unsigned, and the Mac builds are not notarised, so system security prompts may appear. GitHub's automatic “Source code” ZIPs are not native installers. Native packages still require clean-machine acceptance testing. See [installation and troubleshooting](docs/INSTALL.md).

@@ -31,7 +31,7 @@ sudo apt-get install -y git python3 python3-venv python3-pip \
 Clone the source and launch it:
 
 ```bash
-git clone https://github.com/alteredwavestudios/Yomu-Note-Release.git
+git clone https://github.com/alteredwavestudios/Yomu-Note.git
 cd Yomu-Note
 sh run-linux.sh
 ```
