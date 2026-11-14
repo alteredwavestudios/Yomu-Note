@@ -24,8 +24,7 @@ def test_chapter_item_change_never_rebuilds_or_reloads_preview():
 def test_app_version_and_installer_agree():
     root = Path(__file__).resolve().parents[1]
     from yomunote import __version__
-    assert __version__ == '0.8.1b'
     installer = (root / 'YomuNote_v050_Installer.iss').read_text()
-    assert '#define MyAppVersion "0.8.1b"' in installer
-    assert 'VersionInfoVersion=0.8.1.1' in installer
-    assert 'OutputBaseFilename=YomuNote_Setup_v0.8.1b' in installer
+    assert f'#define MyAppVersion "{__version__}"' in installer
+    # Numeric version metadata is validated by test_v082_release_metadata.py.
+    assert f'OutputBaseFilename=YomuNote_Setup_v{__version__}' in installer

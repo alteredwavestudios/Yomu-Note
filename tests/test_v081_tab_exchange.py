@@ -84,7 +84,7 @@ def test_inspection_and_single_tab_export_contains_all_content_and_no_private_fi
             assert all(ids[1] in s for s in paths)
             meta = json.loads(conn.execute('SELECT value FROM meta WHERE key=?',
                                            ('manifest',)).fetchone()[0])
-            assert meta['app_version'] == __version__ == '0.8.1b'
+            assert meta['app_version'] == __version__
             assert meta['version'] == 5
     finally:
         source.close()

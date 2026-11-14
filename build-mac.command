@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Yomu Note v0.8.1b - macOS .app with private, local Tesseract OCR.
+# Yomu Note v0.8.2 - macOS .app with private, local Tesseract OCR.
 # Homebrew is a BUILD-COMPUTER dependency, not an end-user dependency.
 set -e
 cd "$(dirname "$0")"
