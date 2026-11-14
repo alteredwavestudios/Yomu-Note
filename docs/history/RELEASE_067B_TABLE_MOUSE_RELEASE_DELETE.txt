@@ -1,0 +1,40 @@
+YOMU NOTE v0.6.7b — TABLE INPUT & DELETION STABILITY HOTFIX
+
+THE ROOT CAUSE
+
+LinkTextEdit had two different methods both named mouseReleaseEvent.
+Python does not combine methods with the same name: the later one
+replaces the earlier one. The earlier method committed resizing, but
+the later one handled clicking hyperlinks. As a result the resize
+preview remained active while explicit viewport mouse grabbing could
+stop users switching tabs or closing the application normally.
+
+CHANGES
+
+* Merged hyperlink and table behaviour into ONE mouseReleaseEvent.
+* Removed explicit grabMouse / releaseMouse calls entirely.
+* Added a lightweight watchdog if a mouse release is missed.
+* Cancels a drag when the editor hides, loses focus, or changes text.
+* Added Table > Delete entire table in both table menus.
+* Deletes a fully empty table when Backspace is pressed at its start.
+* Whole-table selection + Delete/Backspace can remove the table.
+* Added explicit "Make old table columns resizable" menu action.
+  This does not silently modify previously saved tables.
+* Kept native QTextDocument Undo and the existing clean export.
+
+DATA PROTECTION
+
+Deleting a table removes it from CURRENT saved notes HTML,
+while native Undo retains it for the current editing session.
+Older notebook backups or unused SQLite pages may retain old data.
+Use Export Clean Notebook for Sharing when sharing confidential data.
+
+VERIFICATION
+
+Headless regression suite includes a check for duplicate Qt event
+handlers so this exact bug cannot silently recur. Qt desktop tests
+are included but cannot run in this environment without PySide6.
+
+Do not treat this as Windows-verified until the bundled live tests
+and manual drag tests have passed on Windows. Keep a backup notebook
+and the stable v0.6.6a version available for rollback.

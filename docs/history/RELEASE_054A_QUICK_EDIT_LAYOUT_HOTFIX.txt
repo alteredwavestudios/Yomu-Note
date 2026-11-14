@@ -1,0 +1,33 @@
+Yomu Note v0.5.4a — Quick Edit Layout & Toolbar Spacing Hotfix
+================================================================
+Based on the user-tested v0.5.4 source candidate.
+
+USER-REPORTED REGRESSION
+Quick Edit colour swatches/palette disappear, and the thickness, opacity,
+close/swap buttons overlap. The issue occurs in BOTH light and dark themes.
+The bottom annotation toolbar buttons also have insufficient interior spacing.
+
+FIXES (annotation UI only)
+- Replace the two custom FlowLayout/WrapBar instances inside the floating
+  appearance panel with ordinary Qt layouts whose height is guaranteed:
+  stroke and fill rows in a normal QVBox/HBox nesting; a five-column colour
+  grid with its own rows for presets/recent colours/custom colour.
+- Move exact thickness input and thickness slider into their own rows,
+  avoiding horizontal squeeze or overlapping controls.
+- Activate layout geometry after selected-object state changes to ensure
+  the floating window is measured correctly before positioning.
+- Increase annotation footer tool buttons to 39px high with 6px/10px internal
+  padding and a little between-button breathing room. The Highlight button
+  receives the same treatment.
+- Colour/opacity bindings, selection, floating window dragging, annotation
+  persistence, per-tab Undo/Redo, existing shortcuts, and the notes editor
+  are unchanged.
+
+TESTING
+- Static/test suite runs without Qt; Qt-specific geometry/selection/history
+  regression tests are bundled but must be run on a desktop with PySide6.
+- Windows installer scripts remain included. VersionInfoVersion=0.5.4.1;
+  application GUID/upgrade identity is unchanged.
+
+SAFETY
+Keep a backup of the notebook and v0.5.3/v0.5.4 source before installing.

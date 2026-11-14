@@ -1,0 +1,39 @@
+Yomu Note v0.5.4c — Responsive Quick Edit & Drag Eraser (Windows TEST CANDIDATE)
+
+Build from the extracted source folder:
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+What changed (relative to working v0.5.4b):
+* Quick Edit is fully opaque again, with its separate mouse-transparent soft-shadow backdrop.
+* Quick Edit opens in a wider two-column layout (490 px), with draggable resize
+  corner (290–620 px). It stacks controls at narrow widths. The window is still
+  draggable, and annotation colour/opacity/thickness remain undoable.
+* Responsive single-row annotation toolbar: readable labels at wide widths,
+  icons only at medium widths, and smaller icons at narrow widths. At extreme
+  widths trailing controls move into a 'More annotation tools' popup.
+* Added actual SVG glyphs for Select, Hand, Draw, Erase and Link. Annotation
+  icons use stronger theme-matched colours adjusted for button contrast.
+* While Erase is active, hold the LEFT mouse button and sweep across visible
+  annotation shapes. Touched objects disappear provisionally; on release the
+  gesture becomes one Undo/Redo action, even for old annotations without IDs.
+  Hover without holding the button does not erase anything. Changing tools or
+  switching pages cancels the preview safely.
+* The 100% Multiply defaults from v0.5.4b remain unchanged.
+
+No changes to: rich-text editor, shortcuts, tab system, page navigation,
+PDF raster renderer, notebook data model, saved annotation format.
+
+Tests: 144+ passing headless tests, Qt-dependent tests skipped in this build
+host (PySide6 not installed and network unavailable). Please test on Windows
+before replacing your working installation; retain v0.5.4b as a rollback.
+
+Priority on-device tests:
+  1. Move the mouse over ALL Quick Edit widgets in both themes.
+  2. Resize Quick Edit by its bottom-right corner; verify 2-column / stacked
+     behaviour and no clipping at narrow canvas widths.
+  3. Narrow the centre column; verify labels disappear, icons stay aligned,
+     then the More menu appears without adding a second toolbar row.
+  4. Hold Erase and sweep across multiple touching/non-touching marks;
+     release and Undo once to restore them all. Test an old saved highlight.
+  5. Switch themes and verify toolbar icons contrast well with button fills.

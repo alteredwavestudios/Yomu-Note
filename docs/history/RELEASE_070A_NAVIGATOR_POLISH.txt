@@ -1,0 +1,46 @@
+YOMU NOTE v0.7.0a — NAVIGATOR POLISH — SOURCE TEST CANDIDATE
+
+A focused follow-up to v0.7.0.
+
+FIXED
+- Keyboard page navigation no longer leaves the Groups view without an
+  active-page indicator. The indicator is independent of selections used
+  for moving or grouping pages. Collapsed groups containing the active
+  page show a small accent dot.
+- Import button now places pages at the root level unless exactly one
+  group was explicitly selected in the Groups view. Files dropped ON a
+  group continue to import into that group.
+- Importing between grouped pages never silently puts imported pages
+  into that group. Reading order is reconciled at a root-level boundary.
+- Pages in the Groups tree now show their own lazy thumbnails. Images
+  are sourced from the existing small JPEG cache, with a 20-page
+  active-icon cap and offscreen eviction. This does not add a renderer.
+- Navigator page labels use Montserrat Regular and group labels use
+  Montserrat Bold.
+
+HOW TO TEST
+1. Select several pages with Ctrl/Shift. Navigate through the PDF with
+   Ctrl+Alt+Up/Down. The active-page stripe must move; the selection
+   must remain intact. A closed group containing the active page shows
+   the accent dot, without being expanded.
+2. Select NO group, import a PDF via + Add Page, and confirm its pages
+   remain at the root. Then select a named group and import another
+   document. Its pages should appear inside that folder.
+3. Scroll a large expanded group. Icons appear on demand and remain
+   visually proportionate. Switch to Thumbnails and back.
+4. Rename and move group entries, Undo/Redo, save/reopen, and confirm
+   all imported pages retain their data and their reading order.
+
+LIMITATIONS
+- This is a source candidate. PySide6 desktop tests require a live
+  Windows/macOS Qt installation; they were skipped in this environment.
+- Read checkmarks, percentages, overall progress, Smart Import and PDF
+  chapter outlines are planned for the following stage, not included.
+
+BEGINNER NOTES
+- A 'page ID' is a stable label for a page. Its location can change
+  without changing the ID, so grouping and highlights stay reliable.
+- A 'worker' does slow image processing outside the UI thread. The
+  main thread receives a signal once a cached thumbnail is ready.
+- A 'delegate' draws one item in a Qt tree. It can show an active
+  stripe without changing Qt's normal multi-selection rules.

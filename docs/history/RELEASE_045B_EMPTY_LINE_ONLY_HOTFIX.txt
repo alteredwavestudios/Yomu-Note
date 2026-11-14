@@ -1,0 +1,43 @@
+YOMU NOTE v0.4.5b - EMPTY LINE FONT RESIZING HOTFIX (candidate)
+================================================================
+
+Scope: ONE functional change in yomunote/editor.py. All existing tab, PDF,
+keyboard shortcut, unified history, layout, zoom and installer code remains
+byte-for-byte unchanged from the v0.4.5b Regression Fixes source.
+
+Audit finding:
+The previous height-adjustment branch ran only when QTextBlock.text() == ''.
+Text copied from web pages, PDFs and word processors often leaves spaces,
+nonbreaking spaces (NBSP), tabs, or invisible unicode formatting marks on
+lines that appear visually blank. Those paragraphs therefore bypassed the
+blank-line correction, even though the user sees an empty line.
+
+Hotfix:
+- Recognises whitespace-only and invisible-mark paragraphs as visually blank.
+- Applies the new font size to any existing whitespace/invisible character
+  runs, as well as the paragraph separator/typing format.
+- Recalculates MinimumHeight (never FixedHeight), including when reducing size.
+- Keeps changes in a native QTextCursor edit block, without inserting filler
+  glyphs, clearing text, or modifying neighbouring paragraphs.
+- Uses the recorded blank paragraph size as the A+/A- baseline.
+
+Limitations:
+- A Shift+Return soft line break INSIDE a nonblank paragraph is structurally
+  different from a blank paragraph. This conservative hotfix does not rewrite
+  mixed-content paragraphs to force individual soft-line heights.
+- Qt desktop geometry/undo tests are included but must be run on Windows/macOS
+  with PySide6; Qt was not available in the authoring environment.
+
+Tests run in authoring environment:
+  python -m pytest -q
+  82 passed, 14 skipped (Qt unavailable), 3 subtests passed.
+  python -m compileall -q yomunote
+
+Windows source build:
+  In the extracted folder with your existing Python 3.12 .venv:
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  To rebuild the installer afterward:
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Installer metadata intentionally remains at v0.4.5b for this focused patch.
+Extract to a NEW directory so the original v0.4.5b remains available.

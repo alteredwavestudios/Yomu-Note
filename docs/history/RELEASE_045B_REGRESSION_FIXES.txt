@@ -1,0 +1,25 @@
+YOMU NOTE v0.4.5b — FIXES TO TAB STRIP, LINK SHORTCUT, FONT SIZE
+
+Full Python/PySide6 source candidate, built from v0.4.5a.
+
+Important: This ZIP contains the complete source, NOT a Windows .exe.
+Use build-windows.ps1 and build-installer-windows.ps1 on Windows.
+The PySide6-dependent GUI tests require running on your PC. Python syntax
+checks and the platform-neutral test suite were run in the build environment.
+Do NOT overwrite the known working v0.4.4c or 0.4.5 installation until
+functional testing is complete. Back up your .yominote projects first.
+
+Fixes:
+- Correctly position Add Tab + alongside the last tab instead of far right.
+- Prevent oversized corner widget from overlaying the drag destination.
+- Keep native Qt scrolling arrows and mouse wheel for overflowing tabs.
+- Make normal add-tab incremental and avoid per-tab full stylesheet reload.
+- Restore Ctrl+K for internal page links; Ctrl+Alt+K for website links.
+- Make blank-line font size visibly grow and shrink with safe MinimumHeight.
+
+On Windows (in this extracted folder):
+uv venv --python 3.12 .venv
+uv pip install --python .venv\Scripts\python.exe -r requirements.txt
+.\.venv\Scripts\python.exe main.py
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1

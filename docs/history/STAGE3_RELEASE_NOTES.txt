@@ -1,0 +1,19 @@
+YOMU NOTE v0.5.1 — STAGE 3 SHAPES & RESIZABLE VECTORS
+
+This is a full Python SOURCE candidate, not a prebuilt Windows executable.
+It builds directly on v0.5.0. Keep your known-working version and back up
+notebooks before testing.
+
+Included: transient pen-preview diagonal fix, optional freehand Multiply Marker,
+line/arrow/rectangle/ellipse tools, transparent fills, selection/move/resize
+handles for saved pen strokes and shapes, and per-tab Undo/Redo integration.
+
+Unchanged: PDF highlight rectangle tool, notes editor, font sizing, tab/page
+history, save format, shortcuts, zoom and rendering performance pipeline.
+
+Run the automated suite and then manually test mouse drawing, resize handles,
+all modifiers, Undo/Redo and persistence on Windows. GUI tests are included but
+could not be executed in the source-authoring environment (PySide6 unavailable).
+
+Build with build-windows.ps1, then build-installer-windows.ps1 if Inno Setup
+is installed. Consult README.md for the original Windows build commands.

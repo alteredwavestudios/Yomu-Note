@@ -1,0 +1,39 @@
+YOMU NOTE v0.6.1 — OCR REVIEW THEME / LIST INDENT FIX — SOURCE TEST CANDIDATE
+============================================================================
+
+Changes relative to the working v0.6.0 Stage 4 candidate
+- QPlainTextEdit OCR review now uses theme-aware background, foreground,
+  and readable selection colours (both light and dark palettes).
+- List operations use Qt's genuine QTextList / QTextBlock structures.
+  No fake bullet characters, absolute marker positions or CSS marker spans.
+- `make_list()` creates groups of actual list items with first-level indent 1.
+- Ctrl/Cmd+] indents just the focused list item (or each explicitly selected
+  nonblank item), only if an earlier sibling can serve as its parent.
+- Ctrl/Cmd+[ outdents just those item(s), and exits the list from level 1.
+- Other paragraphs use only their own paragraph indent; selecting a range
+  ending at the start of another paragraph excludes that other paragraph.
+- Selected empty paragraphs remain non-list separators: for numbered lists
+  they don't affect the native list count, and for bullets they separate groups.
+- One user indent or list-conversion operation is a single Qt edit transaction
+  (the existing Yomu per-tab Undo dispatcher remains unchanged).
+
+DESIGN / LIMITATION
+The editor is implemented with PySide6 QTextDocument, not a JS document tree.
+A Qt QTextList is a native document object whose member QTextBlocks are genuine
+list items, with Qt-native marker rendering and numbering. Nested appearance is
+represented by QTextListFormat.indent; it is not a ProseMirror-style node tree.
+This deliberately avoids replacing the document engine or changing saved notes.
+
+TESTING
+  python -m pytest -q
+The included test_v061_list_gui.py exercises list membership, single-item
+sink/lift, blanks, native shortcuts, and OCR palette on Windows/macOS Qt.
+Offscreen Qt tests were not executable in the authoring environment: test the
+UI on your computer and keep v0.6.0 as a rollback.
+
+WINDOWS BUILD (from extracted source folder)
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+No new dependencies, no changes to OCR recognition, notebook format, or
+annotation/preview pipeline.

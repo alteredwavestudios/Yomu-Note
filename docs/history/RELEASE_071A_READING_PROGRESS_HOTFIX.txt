@@ -1,0 +1,62 @@
+YOMU NOTE v0.7.1a — READING PROGRESS HOTFIX (SOURCE CANDIDATE)
+================================================================
+Based directly on the user-supplied v0.7.1 source ZIP. No unrelated feature
+changes are included.
+
+CRASH FIX
+---------
+v0.7.1 added a QLabel and QProgressBar to the default QMainWindow status
+bar, then called setStatusBar(QStatusBar()) a second time. Replacing Qt's
+status bar destroyed the old bar and its child widgets. Their Python
+references remained, causing the repeated "libshiboken: QLabel already
+deleted" exception on read-checkbox changes and a "Could not add tab"
+dialog. v0.7.1a creates the bar ONCE before inserting the permanent widgets.
+There is no silent try/except or disabled progress counter.
+
+CHECKBOX APPEARANCE
+-------------------
+Only the read-status checkboxes in the Groups tree are repainted. Unread is
+softly tinted with the palette accent; read uses the accent with a contrasting
+check mark; partly read uses the accent with a dash. The same drawing path
+uses QPalette's paper colour and the existing group-tree accent colour for
+all Yomu themes, light and dark, including System mode. Native Qt checkbox
+hit regions, page/group IDs, selection, reading-history callbacks, drag/drop,
+progress arithmetic and thumbnails remain unchanged.
+
+FILES CHANGED
+-------------
+- yomunote/window.py                 (one status-bar ownership correction)
+- yomunote/page_groups_ui.py        (themed read-check indicator paint only)
+- CHANGELOG.md                     (this hotfix entry)
+- RELEASE_071A_READING_PROGRESS_HOTFIX.txt (this file)
+- tests/test_v071a_progress_lifecycle_static.py (new)
+- tests/test_v071a_progress_lifecycle_gui.py (new)
+
+TESTING
+-------
+- Non-GUI automated tests: 303 passed, 39 skipped, 3 subtests passed.
+- The skipped tests require PySide6. This packaging environment cannot run
+  Qt because PySide6 is not installed and its installer cannot access the
+  package repository. This is not a Windows GUI verification claim.
+
+On Windows, from the extracted source directory:
+    python -m pytest -q tests/test_v071a_progress_lifecycle_gui.py tests/test_v071_progress_gui.py
+    python -m pytest -q
+
+Manual Windows checks (prefer a COPY of an existing .yominote notebook):
+1. Open an existing notebook and create a second tab using the + control.
+   There must be no "Could not add tab" message.
+2. In Groups view, tick and untick an individual page or slide, then a
+   parent group with a nested subgroup; whole-notebook and per-tab counters
+   must change. Ctrl+Z and Ctrl+Y should restore group completion in one step.
+3. Switch between tabs and delete/undo a tab; counters must stay live.
+4. Inspect an unchecked, checked and partially checked box in Sakura Washi,
+   Matcha Garden, Modern Light, Midnight Indigo and Modern Dark. Test the
+   other themes if desired, especially the automatic System theme. Check
+   contrast and visibility at the Windows display scaling in regular use.
+5. Check that clicking a page does not mark it read automatically, group
+   selections are preserved, Smart Import positions and folder drag/drop
+   continue to behave as in v0.7.1.
+
+For the rest of v0.7.1 acceptance testing, retain TEST_WINDOWS_V071.md.
+Preserve the previous working source/build for rollback.

@@ -1,0 +1,44 @@
+YOMU NOTE v0.6.3 — PAGE SETUP / PARAGRAPH SPACING / NOTES RESIZE ANCHOR — SOURCE TEST CANDIDATE
+
+Features
+========
+• Settings → Notes Page Setup… opens a modal with top, bottom, left, right
+  margins in points (72pt = 1in), default line spacing and paragraph-after.
+• New projects default to 72pt margins, 1.15x lines and 8pt after at 13pt base
+  font. The default gap scales when the document's base font changes.
+• Existing projects with no page setup retain the pre-v0.6.3 20px layout
+  until the new Page Setup dialog is explicitly used.
+• The document root QTextFrame stores the independent margins, rather than
+  applying padding or indents to every paragraph. On narrow screen columns,
+  visual side margins compress so the notes remain readable, but the saved
+  page dimensions retain their exact requested point values.
+• The notes toolbar offers Line & Paragraph Spacing (single, 1.15, 1.5,
+  double; custom before/after). Explicit selections affect only those blocks.
+• Lists use Qt native markers. The document indent width is 18pt/0.25in;
+  first-level list text starts approximately 36pt/0.5in inside the left
+  document margin. Consecutive items have zero bottom gap; the final item has
+  the standard paragraph-after gap. Qt's native marker metrics determine
+  exact glyph placement, which still needs GUI testing.
+• The optional Jump to Edit Position button is off by default. Enable it in
+  Settings → Preferences. The same action is always in the notes More menu.
+• Notes resize scrolling uses CURRENT scroll + anchor displacement instead
+  of old scroll + displacement; window resizes never reset the caret just to
+  restore a reading anchor. A small deferred restore follows reflow.
+
+Persistence and safety
+======================
+• A version-4 compatible, optional "notes_page_setup" object is added to each
+  project.json, with validation; no project version increase or migration.
+• Paragraph overrides remain stored in Qt's ordinary rich-text block formats
+  inside notes_html, not in parallel JSON blocks or inferred from line counts.
+• No PDF, OCR, annotations, keyboard-shortcut, or tab-history changes.
+
+Testing
+=======
+• Headless regression tests pass, including project round-trip, legacy notes,
+  margin scaling and explicit-block formatting-source invariants.
+• Real Qt UI tests are included but cannot be run here without PySide6.
+• Windows manual checks: create 4 paragraphs, set page margins, custom spacing
+  for just the middle two, create a 3-item numbered list and Return to add a
+  fourth, drag notes splitter, resize main window, Undo/Redo and Jump to Edit.
+• Retain v0.6.2 as a rollback while testing live desktop rendering.

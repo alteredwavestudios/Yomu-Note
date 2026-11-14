@@ -1,0 +1,64 @@
+YOMU NOTE v0.6.5 — RICH-TEXT EDITOR RELIABILITY
+SOURCE TEST CANDIDATE — 8 NOVEMBER 2026
+
+THIS RELEASE INCLUDES
+
+1. Multi-paragraph headings
+   Each selected Qt QTextBlock receives its own heading level,
+   font size, and weight. No adjacent unselected blocks are styled.
+   All the changes for one selection are one native Undo action.
+
+2. Dark-theme-safe Clear Formatting
+   This removes explicit text and highlight colours instead of
+   setting a permanent dark blue. The active theme supplies ink.
+
+3. Explicit zero spacing and portable overrides
+   A user-chosen 0 pt paragraph gap remains 0 when page setup
+   changes. Overrides live on Qt blocks while editing and are
+   saved as a small invisible metadata comment in the notes HTML.
+   The metadata records typographic points, not screen pixels.
+   Older notes without this metadata load as before.
+
+4. Page Setup Undo
+   Qt paragraph changes and the notebook's saved page defaults
+   now participate in one named history action where a native
+   command exists. Changes to settings alone remain Undoable.
+
+5. Right-click Undo/Redo
+   The notes context menu now routes these actions through
+   Yomu's shared history, instead of bypassing it with Qt Undo.
+
+6. Keyboard shortcuts
+   Ctrl+Y also performs Redo on Windows and Linux. macOS notes
+   zoom-in tooltips correctly show the plus key. The existing
+   Ctrl/Cmd+[ and Ctrl/Cmd+] list indentation shortcuts are kept.
+   Tab and Shift+Tab are NOT repurposed for list indentation.
+
+7. Beginner comments and tests
+   The edited modules explain blocks, formatting, history and
+   storage in short lines. Added Qt-independent and GUI tests.
+
+NOT CHANGED IN THIS RELEASE
+
+- PDF rendering, OCR, annotations, and notebook container format.
+- Notes text engine (still native Qt), source HTML, and source assets.
+- Default rich-text paste (Ctrl+V) and plain paste (Ctrl+Shift+V).
+
+KNOWN LIMITATIONS AND NEXT STAGE
+
+- PySide6 is unavailable in this environment. Actual Qt layout,
+  page setup Undo and right-click GUI behaviour require Windows/
+  macOS manual and automated desktop testing.
+- Paragraphs imported from older versions may retain legacy CSS
+  pixel spacing. Newly authored explicit overrides use points.
+- Large notebook open/save, inter-tab page-transfer Undo, and
+  direct PDF text extraction are still scheduled for v0.6.6.
+- Paste image persistence, spellcheck, find/replace, word count,
+  tables and export/print support remain separate future work.
+
+WINDOWS BUILD
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+KEEP v0.6.4 AND A BACKUP OF YOUR NOTEBOOKS UNTIL TESTING PASSES.

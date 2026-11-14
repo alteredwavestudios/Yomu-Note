@@ -1,0 +1,22 @@
+Yomu Note v0.7.2 — Reading Rewards (source candidate)
+
+Based directly on the v0.7.1a source hotfix.
+
+Changes limited to reading progress, checkbox display, celebration feedback,
+notebook progress placement, and Pomodoro reminder text.
+
+- Progress bars ease smoothly in either direction; an increase adds a short glint.
+- Whole-notebook progress now lives in the header and uses the existing totals.
+- Reading checkbox marks are normalised and painted in high contrast.
+- A completed group, tab or notebook triggers a lightweight kawaii toast and
+  reuses the existing confetti overlay (unless reduced motion is enabled).
+- Only deliberate checkbox actions trigger a completion message, not Undo/Redo.
+- Pomodoro reminders use ten escalating, playful lines for both focus and break.
+  The existing maximum of ten minutes is unchanged.
+
+Not included in this candidate: editable custom reminder text, celebration
+settings beyond the existing reduced-motion preference, milestone toasts,
+new sound effects or a reading journal.
+
+Validation: Python compilation and non-GUI pytest suite. Live PySide6 GUI
+validation is still required on Windows/macOS before a stable release.

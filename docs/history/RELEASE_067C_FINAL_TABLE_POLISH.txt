@@ -1,0 +1,44 @@
+YOMU NOTE v0.6.7c — FINAL TABLE CONTROLS — SOURCE TEST CANDIDATE
+
+WHAT'S NEW
+
+1. Right-click a cell and open the named "Edit Table" submenu.
+2. Use "Indent whole table right" / "Outdent whole table left"
+   to move the table by 18 logical pixels per step. These commands
+   change the native table frame margin, not any cell's formatting,
+   and are recorded as one Undoable edit each.
+3. Clicking the existing table-corner handle marks the whole
+   table for Delete/Backspace, including a completely empty 1x1 table.
+   Ordinary selections within a cell never delete the whole table.
+4. Delete the current row with Ctrl+Alt+Shift+R (Cmd+Option+Shift+R
+   on macOS), or the current column with Ctrl+Alt+Shift+C
+   (Cmd+Option+Shift+C on macOS). The shortcuts appear in both the
+   table menu and the mouse-hover tooltip.
+5. Fix a pre-existing tuple ordering bug in selectedTableCells()
+   which could affect merged-cell selections.
+
+SAFETY
+
+- All table changes use the existing native Qt undo stack.
+- Deleted table content remains recoverable during the session but
+  isn't included in current saved HTML. Use clean notebook export
+  when sharing potentially sensitive material; older backups may
+  still contain old content.
+- v0.6.7b's repaired single mouseReleaseEvent, no explicit grabMouse,
+  resize watchdog, and focus/tab-switch cancellation are preserved.
+
+TESTING
+
+Run on Windows from the source folder:
+  python -m pytest -q tests/test_v067c_table_polish_gui.py
+
+Manually verify:
+  A. Indent a 3x2 table, Undo/Redo, and save/reopen it.
+  B. Click the corner and press Delete; Undo/Redo restores/removes it.
+  C. Select a little text inside a cell; Delete removes only text.
+  D. Use the row/column keyboard shortcuts in a multi-row table.
+  E. Check right-click > Edit Table and hover tooltip labels.
+  F. Drag dividers and switch tabs to confirm no mouse freeze returns.
+
+This environment cannot run PySide6 desktop interactions; the
+shipped tests are a starting point for live Windows verification.

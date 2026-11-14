@@ -1,0 +1,60 @@
+YOMU NOTE v0.6.6a — TABLE INTEGRITY & RENDERING
+SOURCE TEST CANDIDATE
+
+GOAL
+----
+Fix the unwanted table-guide overlaps while protecting the
+actual document, Undo history and saved table contents.
+
+WHAT CHANGED
+------------
+- The guide overlay uses the real QTextTable format's column
+  percentages instead of each cell text cursor's X position.
+- Horizontal guide positions are recalculated during painting.
+- Shared edges are drawn once, not twice.
+- The grid avoids drawing through merged cells.
+- If a table uses widths we cannot resolve safely, the guide
+  overlay skips internal lines instead of inventing positions.
+- Deleting a row or column first checks merged-cell ownership.
+- Operations touching a merged cell are refused until the
+  merged cell is split. Other cells remain unchanged.
+- The caret moves to a surviving cell after deletion.
+- Existing percentage widths are preserved when adding or
+  deleting a column, instead of forcibly equalising columns.
+- Each table edit stays within one native Qt Undo edit block.
+
+DATA AND PRIVACY
+----------------
+- Session Undo retains the removed cells through Qt's native
+  document history. Closing the notebook discards that history.
+- Saving serialises only the current HTML. Deleted cell text
+  should be absent from that current HTML.
+- A clean notebook export rebuilds the SQLite database from
+  the current records. Old backups remain separate.
+- This does NOT promise secure deletion from backups, disk
+  snapshots, cloud sync histories or operating-system storage.
+
+TESTS
+-----
+- The headless tests cover geometry, merged-cell deletion,
+  Qt-structure checks and previous application regressions.
+- PySide6 desktop tests are included for row/column deletion,
+  native Undo, saving a clean copy, custom widths, tab
+  independence, and changing cell text alignment.
+- Desktop tests require PySide6 and have not been run in the
+  current build environment.
+
+LIMITATIONS / NEXT STAGE
+------------------------
+- Qt does not expose exact cell border rectangles through its
+  public Python text-layout API. Row guides are conservative
+  approximations based on the current laid-out row text.
+- Draggable columns and row-height editing are NOT in this
+  stability release. They belong to v0.6.7 after GUI testing.
+
+WINDOWS BUILD
+-------------
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep v0.6.6 as a rollback until this candidate passes Windows.

@@ -1,0 +1,48 @@
+YOMU NOTE v0.7.3 — SMART IMPORT 2.0 (SOURCE CANDIDATE)
+9 November 2026
+
+WHAT CHANGED
+============
+* Replaced two confusing simultaneous grouping controls with ONE arrangement:
+  - One group per file
+  - One group containing all files
+  - No new groups (import into selected destination)
+* Explicitly choose "Root of this tab" or a named nested group in the dialog.
+  The page visible in the middle preview is NEVER used to select a destination.
+* Deleted/missing destination: hard failure; no silent fallback to root.
+* Smart Import indexes sources in a worker and opens a review editor before
+  modifying the live page list, group tree or Undo history. Cancel leaves
+  the notebook unchanged and cleans the newly staged source files.
+* PDF bookmarks extracted using Yomu Note's EXISTING PDFium dependency and its
+  global lock. Actual source-page indexes, nesting levels and arbitrary
+  bookmark titles are used; headings need NOT contain the word "Chapter".
+* Converted EPUB/Office/PPTX files can use bookmarks in their converted PDF
+  IF the converter retained accurate PDF navigation. No guesses from names.
+* Choose Automatic, Embedded bookmarks, Fixed page intervals, or No chapters.
+  Default detection depth is two levels, adjustable to three.
+* Preview has a per-file chapter hierarchy, page counts and provenance;
+  on-demand small image of the current page; accurate page-number entry;
+  boundary slider; rename; add chapter/subchapter; merge/remove; indent;
+  outdent; reset; and temporary Undo/Redo. Import only after confirmation.
+* The model retains source order and includes EVERY page once, including
+  cover/preliminary pages outside any detected group.
+* One per-tab Undo/Redo entry for the resulting import, preserving stable IDs.
+
+IMPORTANT LIMITATIONS
+=====================
+* Native DOCX heading styles / EPUB navigation without page-accurate PDF
+  destinations are NOT mapped speculatively onto the converted PDF.
+  For those sources, use fixed page ranges or edit the structure manually.
+* No OCR-based discovery or typography-only AI heading classification.
+* Printed page numbers may differ from the actual source/PDF page numbers.
+* The review is displayed after the files have been staged/indexed, but BEFORE
+  they're committed to the notebook. Cancel removes uncommitted source assets.
+* The Windows/macOS PySide6 GUI has not been run in this environment. Please
+  run TEST_WINDOWS_V073.md before promoting this to a stable release.
+
+UNRELATED FEATURES LEFT UNCHANGED
+================================
+Notes editing, annotation tools, PDF preview quality, reading checkbox states,
+reading celebrations, tab behaviour, Pomodoro, cached-thumbnail limits,
+existing themes, saved notebook format (still v4), file converters,
+background import threading, and PDFium rendering/locking.

@@ -1,0 +1,74 @@
+YOMU NOTE v0.6.6 — NATIVE TABLES & THEMES
+SOURCE TEST CANDIDATE — BUILT ON v0.6.5a
+
+WHAT'S NEW
+
+  TABLES
+  * Notes toolbar → Table → Insert table.
+  * Size dialog starts at 3 rows by 2 columns.
+  * Default tables have NO saved/printed borders,
+    NO cell padding and NO cell spacing.
+  * A faint dashed guide is painted on the screen
+    while you are editing a borderless table.
+    That guide does not go into the saved HTML.
+  * Tab moves forward; Shift+Tab moves backwards.
+    Tab in the final cell creates a new row.
+  * Right-click inside a table for editing commands.
+  * Add/remove rows or columns, merge/split,
+    mark the first row as a header and equalise widths.
+  * Switch real borders on/off at any time.
+  * Optional cell padding: none, 3px or 6px.
+  * Tables are native Qt rich text: they save
+    inside the existing notes HTML format.
+
+  NEW THEMES
+  * Light: Asagao Morning, Ume Blossom,
+    Hinoki Paper, Sora Sky, Mizu Mint.
+  * Dark: Yoru Neon, Sumi Ink, Beni Lantern,
+    Aoi Night, Shibui Graphite.
+  * These use the existing global dialog palette.
+
+  SMALL REVIEW FIXES
+  * Notebook and project files with missing or
+    invalid manifest structure show clear errors.
+  * Loading notes no longer sets the last-edit
+    navigation pointer to the end of the file.
+  * Reorganised the notes set_html signal blocker
+    to ensure signals are always restored.
+
+TEST THE FOLLOWING IN WINDOWS
+
+  1. Insert a 3x2 table; type in each cell.
+  2. Check the faint dashed guides disappear
+     when clicking elsewhere in the notes.
+  3. Toggle permanent borders on and off.
+  4. Set padding to 3px; check columns are legible.
+  5. Tab through every cell, then Shift+Tab back.
+     Check that Tab at the end adds exactly one row.
+  6. Add a row below, column right, remove both.
+  7. Try Ctrl+B, font family and font size in a cell.
+  8. Save, close, reopen, and check the table.
+  9. Change Page Setup margins and check that
+     table cell paragraphs remain compact.
+ 10. Try all ten themes, including table guides.
+ 11. Undo/Redo a table insertion and edit.
+
+LIMITATIONS / LATER FEATURES
+
+  * PySide6 desktop tests were not available here.
+    The Windows interface still needs hands-on tests.
+  * The faint grid is a best-effort visual overlay.
+    Complex merged/imported tables can be uneven.
+  * Image collages, text/sticky-note annotations,
+    the page-range import dialog, enriched paste,
+    outline/search upgrades and large-file background
+    work remain separate planned workstreams.
+  * Dragging image/PDF files into the page navigator
+    already exists; page-range selection is future work.
+
+WINDOWS BUILD
+
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep v0.6.5a as a rollback until your tests pass.

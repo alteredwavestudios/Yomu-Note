@@ -1,0 +1,50 @@
+YOMU NOTE v0.7.2b — RESPONSIVE NAVIGATOR & KAWAII COLOUR CANDIDATE
+9 November 2026 · Source ZIP (Windows/macOS GUI verification required)
+
+THIS IS AN INCREMENTAL UPDATE TO v0.7.2a.
+It retains the reading rewards, Japanese kaomoji, Pomodoro notifications,
+checkbox painting and 20-image navigator cache from that candidate.
+
+FIXED
+- The checkboxes now accept clicks ~7 px to either side and ~8 px above/below
+  the native checkbox region, clipped to the current item's title area.
+  The drawn square remains the same size; Qt still holds the real checked state.
+  Keyboard toggling and existing per-tab Undo remain unchanged.
+- KawaiiNotice's stylesheet had an extra closing brace. Removed it to stop
+  repeated Qt "Could not parse stylesheet" warnings when notifications update.
+
+RESPONSIVE PAGE NAVIGATOR
+- The Groups tree now uses five visual densities, picked by actual shelf width:
+  wide (310+ px), normal (248–309), compact (160–247), rail (100–159),
+  and mini (74–99). The last two intentionally omit clipped text; full names
+  remain in tooltips and item metadata. Group progress remains visible as a
+  short line when the sidebar is narrow; collapsed groups still work.
+- Expanded row heights and centred existing thumbnails at compact widths;
+  narrow rails no longer have sideways page-label overflow.
+- Wide Groups view renders page icons up to 58 x 76 rather than 44 x 58.
+  The original 110px cached thumbnails are used; no second renderer added.
+- The maximum sidebar width rises from ~465 to 540 px, so the optional
+  standalone Thumbnails view can show larger previews. Cycle widths are
+  Normal 305, Compact 185 and Mini 92 px. Saved user widths stay intact.
+- In Mini width, the separate +Add button is hidden to avoid stacked rows;
+  Import, Smart Import and Add Blank remain in the (...) overflow menu.
+- The whole group tree, stable IDs, current selection, drag/drop and reading
+  model remain unchanged. No extra per-row animation or thumbnail objects.
+
+PREFERENCES
+- NEW installations default to Playful celebration animations. User-selected
+  Gentle or None remains saved and wins over the new default.
+- CRISP contrast-aware preview remains the default for new installations,
+  as it already was in v0.7.2a. Existing Off/Gentle/Crisp choices remain.
+- Six vibrant, contrast-checked themes: Strawberry Milkshake, Melon Soda Pop,
+  Peach Mochi, Candy Cloud, Grape Fizz Night and Arcade Hearts.
+  Their accents change the existing checkmarks and reading bars. All original
+  theme identifiers and saved preferences remain supported.
+
+SCOPE / SAFETY
+- Only reading Groups navigation, navigator controls, UI notifications,
+  the theme registry, default animation preference and version metadata.
+- No changes to notebook file format, page states, Smart Import, OCR,
+  annotation tools, editor, PDFs, full-page render path or thumbnail limits.
+- New test files cover checkbox hit geometry, theme contrast and navigator
+  source assumptions. Qt interaction tests require a real PySide6 environment.

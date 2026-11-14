@@ -1,0 +1,46 @@
+Yomu Note v0.5.4b — Quick Edit Hover/Repaint Hotfix + 100% Multiply Defaults
+============================================================================
+Base: v0.5.4a (working annotation model, toolbar, notebook, shortcuts).
+
+Reported
+--------
+Colours and other buttons sometimes disappear permanently when hovered, in
+both light and dark modes. Request: a subtly see-through NON-EDITABLE floating
+Quick Edit background, and 100% initial opacity for page highlight tools.
+
+Changes — annotation UI only
+----------------------------
+* Remove QGraphicsDropShadowEffect from the Quick Edit QFrame. Applying a
+  graphics effect to the whole container forces Qt to rasterise interactive
+  descendants as a single pixmap, potentially leading to stale hover paint.
+* Draw the soft shadow and themed translucent background in ONE lightweight,
+  mouse-transparent SIBLING widget under Quick Edit. The editor, buttons,
+  swatches, text and sliders remain fully opaque and interactive. The sibling
+  follows panel move/resize/show/hide and cannot trap mouse events. It uses
+  Qt SourceOver alpha compositing, not Screen: true Screen blend would alter
+  the underlying page colours and weaken text readability. Slight PDF
+  visibility is maintained behind non-editable areas.
+* Set new freehand Marker, rectangle highlight and straight-line highlight
+  presets to 100% opacity (still Multiply). Users can lower opacity in Quick
+  Edit. Existing saved strokes/highlights are NOT modified or reinterpreted.
+* Retain the v0.5.4a fixed-row layout and toolbar button padding untouched.
+* Add source-level guards and PySide6 GUI test cases for hover visibility,
+  theme switching, panel movement/dismissal, and highlight defaults.
+
+Not changed
+-----------
+Rich-text editor, shortcuts, tabs, page navigation, navigator visibility,
+PDF renderer, annotation geometry, saved-format model, Undo/Redo architecture,
+and existing notebook files.
+
+Testing
+-------
+The Qt-independent suite passed in the supplied build environment. Full
+Windows PySide6/graphics-driver rendering cannot be verified here; treat this
+as a TEST CANDIDATE and keep the previous source ZIP for rollback. Backup
+important notebooks before opening them with a candidate build.
+
+Installer
+---------
+AppId unchanged; installer VersionInfoVersion=0.5.4.2 and output name
+YomuNote_Setup_v0.5.4b.exe. Build from this extracted source directory.

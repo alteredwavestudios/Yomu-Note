@@ -1,0 +1,39 @@
+YOMU NOTE v0.7.4 — NOTES PAGES & NAVIGATOR STABILITY
+=====================================================
+SOURCE CANDIDATE — NOT AN OFFICIALLY GUI-VERIFIED STABLE BUILD.
+
+Highlights
+----------
+* Independent named rich-text notes pages in every notebook tab. Use the
+  Notes row's dropdown/previous/next, + to add, pencil to rename and - to
+  remove (confirmation; Undo to restore). Limit: 128 notes pages per tab.
+* Every original tab's rich-text document appears as the first notes page.
+  Formatting, text, links and page references remain rich HTML, not plain text.
+  Native in-session QTextDocument Undo history is kept independently for pages.
+* In Groups, labels are built from model data before thumbnails and kept
+  through thumbnail eviction and compact/wide resizes. Wider margins and
+  measured progress counters prevent overlap. Group/page selection behaviour
+  and the previous thumbnail memory cap are unchanged.
+* Right-click a page in Groups for Remove this page; Undo restores it.
+* The old Thumbnails toggle is relabelled Individual (view ID unchanged).
+* More right-side space around the tab-close hover button.
+* New notebooks now use .yomunote. Opening .yominote automatically copies
+  it to a new collision-safe .yomunote path in the same directory; the
+  original is preserved. Back up your files before trying this candidate.
+
+Data and compatibility
+----------------------
+The notebook SQLite container format stays v5, and per-tab project format v4.
+Notes pages are optional additional fields on the tab's manifest. Single
+older-document entries are migrated losslessly when loading. The existing
+page IDs, saved groups, read checkboxes, annotations, import strategy, PDF
+preview, Crisp setting, celebration settings and existing themes are untouched.
+
+A practical limit: the new extension must be written alongside the old
+notebook; a read-only directory can prevent automatic migration.
+
+Test status
+-----------
+Pure-Python regression suite passes. PySide6 is not installed in the source
+analysis environment, so real native Qt tests are skipped. Before using your
+main notebook on Windows, follow TEST_WINDOWS_V074.md, using a COPY.

@@ -1,0 +1,39 @@
+YOMU NOTE v0.6.7a — TABLE POINTER / ALIGNMENT HOTFIX
+========================================================
+
+WHY THIS EXISTS
+
+Windows reported repeated `RuntimeError: libshiboken:
+Internal C++ object (PySide6.QtGui.QTextTable) already deleted`
+during paintEvent. This originated in table_guide_geometry after
+Qt replaced a table while _table_hover still held its wrapper.
+
+FIXED
+
+1. The editor now stores the integer position of the table's first
+   cell for hovering and resizing. It never saves a QTextTable wrapper
+   in the interaction state. Fresh Qt tables are looked up as needed.
+2. The hover and drag state is invalidated when the document changes,
+   and the drag is cancelled if the table no longer matches.
+3. The mouse is explicitly grabbed for a resize and released on
+   completion or cancellation, so preview lines cannot remain stuck.
+4. Alignment-independent grid positioning uses Qt document geometry
+   and the editor's scrollbar offsets. Centring text must not move
+   the whole table's editing guides.
+5. Table painting has one narrow safety guard for a race where Qt
+   deletes a wrapper after it has just been checked; this guard is
+   not used to conceal unrelated programming errors.
+
+NOT CHANGED
+
+- Existing note/project file format, table cell contents, saved
+  formatting, native Undo/Redo, OCR, annotation or navigation code.
+- LibreOffice's full table-layout engine is not implemented.
+  Yomu Note continues using Qt's native QTextTable system.
+- Row-height adjustment is extra cell padding, not a fixed height.
+
+TESTING STATUS
+
+- 230 headless tests pass, with 3 passing subtests.
+- 33 Qt GUI tests are skipped here (PySide6 unavailable), including
+  new tests for the reported symptoms. Test on Windows before release.

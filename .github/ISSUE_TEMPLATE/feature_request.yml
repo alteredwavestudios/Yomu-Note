@@ -1,0 +1,18 @@
+name: Feature request
+description: Suggest an improvement to Yomu Note
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What studying problem does this solve?
+      description: Describe the task you are trying to do, not only the proposed button.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Suggested behaviour
+      description: Explain how it should work, including any Windows/macOS/Linux or keyboard-accessibility needs.
+    validations:
+      required: true

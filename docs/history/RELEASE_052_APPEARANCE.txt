@@ -1,0 +1,24 @@
+YOMU NOTE v0.5.2 — ANNOTATION APPEARANCE AND HIGHLIGHT TOOLS
+
+Base: v0.5.1 Stage 3 Shapes & Resizable Vectors (user verified working).
+
+Changes (annotation system only):
+- Separate stroke colour/opacity/thickness and optional fill colour/opacity.
+- Select existing mark to edit its true properties; deselect to return to per-tool defaults.
+- All pen strokes and shapes can change thickness after creation, with per-tab Undo/Redo.
+- Rectangle and line Page Highlight selection; Multiply is locked for both;
+  straight-line highlight uses a square/flat cap, adjustable thickness and Shift angle.
+- Quick swatches and native Qt custom colour and alpha chooser; 3 recent colours.
+- New annotation opacity fields are optional; unchanged old marks render as before.
+- Legacy anonymous page highlights remain selectable, movable, resizable and erasable.
+- Source ZIP includes tests and the unchanged Windows build steps; installer version/output metadata is updated.
+
+Validation:
+- Python bytecode compile and headless tests complete in this environment.
+- PySide6 is unavailable here; native desktop interactions and installer cannot be
+  verified until built and tested on Windows/macOS. This is a candidate, not a
+  compiled installer. Keep v0.5.1 for rollback and back up notebooks before testing.
+
+Windows PowerShell from the extracted source folder:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1

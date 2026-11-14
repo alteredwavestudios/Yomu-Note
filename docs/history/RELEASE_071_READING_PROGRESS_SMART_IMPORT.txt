@@ -1,0 +1,60 @@
+YOMU NOTE v0.7.1 — READING PROGRESS & SMART IMPORT (WINDOWS CANDIDATE)
+=====================================================================
+Built from v0.7.0a. Retains v0.6.7c table mouse-release fixes.
+
+NEW
+---
+* +Add button (formerly + Add Page).
+* Import... and Smart Import... entries in the +Add menu and File menu.
+* Import options allow a label preset or a custom pattern. Choices include
+  numbered pages, slides, chapters, sections, figures, sheets, abbreviated
+  pages, padded numbers and Roman numerals, with optional original filename.
+* Page label patterns are PRESENTATION TEXT ONLY. PDF page mappings never
+  change. An original filename is saved as descriptive metadata.
+* Long input filenames are not copied into the internal notebook asset path.
+  Sources are stored as originals/<generated-id>.<extension>.
+* Smart Import can create one folder per source file OR one combined
+  folder for selected files (the combined option defaults for image batches).
+  With a selected folder, the new groups become subgroups. Plain Import
+  without a selected folder creates ungrouped pages at the root.
+* Read/unread checkboxes on individual pages and groups in Groups view.
+  Nested groups calculate completion from their descendants automatically.
+* Each group shows an unobtrusive completion bar and rounded-up percentage.
+  Empty groups show neither a misleading completed state nor a percentage.
+* Each tab displays a completion bar in the left navigator. The status bar
+  displays combined progress across all notebook tabs.
+* Right-click in either navigator to mark individual pages as read or unread.
+* Drag one whole folder above/below another, into another, or back to root.
+  Entire nested group hierarchy moves with its contents. The flat reading
+  order changes to match; reading status remains attached to page IDs.
+* Marking one page or whole folder read/unread and moving one whole folder
+  are SINGLE, per-tab Undoable steps.
+
+SAFETY
+------
+* Import placement is planned and validated before changing any live pages.
+* A folder cannot be dragged inside itself or one of its descendants.
+* Saved progress is filtered to current pages. Session Undo can still
+  restore deleted pages' completion flags without persisting deleted flags.
+* Source files are copied only once per import, not once per group.
+* Source PDF chapter outlines are NOT parsed yet (future v0.7.x feature).
+  'Chapter 1' is a naming preset, not automatic PDF chapter recognition.
+* A dropped file in the Groups tree uses the old direct-drop import path;
+  the Smart Import dialog is intentionally used for the +Add / File menus.
+
+LIMITATIONS
+-----------
+* GUI mouse/paint tests require PySide6 and a real desktop. The headless
+  suite alone cannot certify Windows drag/drop or visual spacing.
+* Initial group drag implementation handles ONE selected folder at a time.
+* When a user copies a page between tabs it starts unread; when moving
+  a page between tabs, its read state moves with it.
+
+BUILD
+-----
+Open an ordinary PowerShell session in this extracted source directory:
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep a known-working v0.7.0a build and use a COPY of your notebook for testing.

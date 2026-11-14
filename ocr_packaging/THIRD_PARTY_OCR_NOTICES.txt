@@ -1,0 +1,19 @@
+Yomu Note — Integrated Offline OCR
+
+The OCR feature uses Tesseract OCR by the Tesseract contributors and Google.
+Tesseract is distributed under the Apache License, Version 2.0.
+The accompanying TESSERACT_APACHE_2.0.txt is the licence text.
+Project: https://github.com/tesseract-ocr/tesseract
+Documentation: https://tesseract-ocr.github.io/tessdoc/
+
+The English training data is from the Tesseract tessdata distribution.
+Project: https://github.com/tesseract-ocr/tessdata
+
+Native redistributable builds may contain further third-party components such
+as Leptonica, libpng, libjpeg, ICU, and compression libraries, each with its
+own licence and notices. The release builder MUST retain and review the
+notices from the selected Windows redistribution or macOS dependencies before
+publishing a signed installer. This source candidate does not assert a
+completed third-party licence audit for a particular native binary bundle.
+
+OCR runs locally. No document images or recognised text are sent to a server.

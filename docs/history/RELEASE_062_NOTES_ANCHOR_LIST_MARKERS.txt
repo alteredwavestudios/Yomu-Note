@@ -1,0 +1,21 @@
+YOMU NOTE v0.6.2 — NOTES VIEW ANCHORING / LIST MARKER REBUILD — SOURCE TEST CANDIDATE
+
+WHAT THIS BUILD FIXES
+
+1. OCR review text box now continues using the themed palette from v0.6.1.
+2. Notes list markers are stabilised by normalising each list block to the base document size while keeping rich text inside the item untouched.
+3. Ctrl/Cmd+[ and Ctrl/Cmd+] now operate only on the explicit blocks touched by the current selection/caret.
+4. Notes scroll position is preserved while indenting, creating lists, undoing and redoing native text edits.
+5. The notes editor now restores the previous visible reading position after resize/reflow of the notes column.
+
+IMPLEMENTATION NOTES
+
+- LinkTextEdit now captures and restores a view-state anchor (scrollbar value, cursor, top visible block) around edits and resizes.
+- NotesEditor make_list() and indent() are wrapped in preserve_view_state() and keep using native QTextList membership rather than inserting marker text.
+- Shared history text undo/redo callbacks now run through the editor view-anchor helper.
+- List blocks are normalised so their block char format follows the document base size, preventing oversized markers from inheriting a heading-sized block format.
+
+TESTING
+
+- Source-level tests passed, including new checks for view anchoring and list marker normalisation.
+- GUI verification is still required on a Windows/macOS machine with PySide6 installed.

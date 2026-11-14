@@ -1,0 +1,77 @@
+YOMU NOTE v0.6.0 — STAGE 4 OCR & TEXT EXTRACTION — SOURCE CANDIDATE
+========================================================================
+Based directly on the user-tested and working v0.5.4c annotation build.
+
+WHAT'S NEW
+- "✂ OCR" in page-preview controls enters a temporary region-selection mode.
+- Draw up to 40 rectangles over imported PDF or image pages. Drag the interior
+  to reposition, or the bottom-right corner to resize. A subtle white/light
+  overlay brightens selected text while the rest of the page is dimmed.
+- Mouse-wheel and touchpad scrolling stay available while selecting. Holding
+  a drag near the viewport edges automatically scrolls a very long page.
+- Regions are stored relative to the source page, so preview zoom, scrolling,
+  sharper preview renders and resizing do not move or alter the selection.
+- "All" selects a whole page; "↶" removes the last rectangle; "Clear" removes
+  all regions; Escape exits OCR mode.
+- Regions are processed as separate reading blocks, top-to-bottom and then
+  left-to-right for approximately aligned rows, regardless of drawing order.
+  For multi-column pages, draw one rectangle per block/column; the app cannot
+  reliably infer arbitrary newspaper layout inside one large rectangle.
+- 300 DPI is the default with optional 200/400/600 DPI. The original PDF is
+  cropped directly through pypdfium2, independently of the preview image.
+  Rendering is capped at 14 megapixels per region; effective DPI is reduced
+  when necessary to avoid memory spikes. Source image pixels are retained
+  without inventing resolution from poor scans.
+- Tesseract runs locally off the GUI thread, processes each crop, reports its
+  progress and can be cancelled. No network/upload or background task on idle.
+- Recognised text is automatically copied to the system clipboard. A Review
+  dialog opens with editable text and a "Copy edited text" button. Optional
+  "Join wrapped lines" keeps paragraph gaps but joins ordinary line wraps.
+- A compact, persistent, per-app freehand Pen thickness slider (0.5–30 pt)
+  appears only when the Pen tool is selected, next to annotation buttons.
+- No notebook schema change; existing v4 projects, editor, themes, annotations,
+  per-tab Undo/Redo, clipboard paste, and PDF preview cache are preserved.
+
+INSTALL TESSERACT ON WINDOWS (REQUIRED FOR OCR)
+- The v0.6.0 source ZIP and Yomu Note installer DO NOT bundle Tesseract.
+  Install it separately before using OCR. Tesseract is free/open source.
+- See Tesseract's installation documentation:
+  https://tesseract-ocr.github.io/tessdoc/Installation.html
+- Windows builds are linked from UB Mannheim:
+  https://github.com/UB-Mannheim/tesseract/wiki
+- Choose English traineddata, plus any other languages you need. Default
+  installation location is C:\Program Files\Tesseract-OCR. Yomu Note detects
+  this folder even if Tesseract was not added to PATH.
+- Alternatively search for the available package in PowerShell:
+  winget search tesseract
+  winget install UB-Mannheim.TesseractOCR
+- To verify, run: tesseract --list-langs
+  If PowerShell cannot find Tesseract, try reopening it; Yomu Note will also
+  check the standard Program Files installation folders directly.
+
+BUILD / INSTALL
+From the unzipped v0.6.0 source folder in PowerShell:
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+Follow README.md to install the Python requirements and create .venv first.
+
+KNOWN LIMITATIONS / QA
+- This is a test candidate, NOT a Windows-verified stable release. PySide6 is
+  unavailable in this build environment; GUI test cases are included but skipped.
+- OCR fidelity depends on source scan quality, fonts, Tesseract language packs,
+  segmentation, and the selected region boundaries. Verify direct quotations.
+- This stage supports left-to-right Latin-script reading order. Tables, complex
+  sidebars, right-to-left text and vertical writing require later work.
+- Tesseract's traineddata and executable must be installed outside Yomu Note.
+- Keep v0.5.4c for rollback until Windows tests pass on your actual machine.
+
+WINDOWS MANUAL CHECKLIST
+1. Import scanned PDF, text PDF, a transparent slide PNG and a long image.
+2. Click OCR, draw three boxes in reversed order, move and resize one.
+3. Scroll with mouse wheel/touchpad mid-selection; try edge auto-scroll.
+4. Zoom, switch DPI to 400, select an installed language and Recognise.
+5. Verify clipboard order, line-wrap joining, Review and Copy edited text.
+6. Cancel a running OCR operation, then switch page and project tabs.
+7. Try 245px-wide preview and both dark/light themes.
+8. Choose Pen and move the new thickness slider; verify existing strokes
+   and annotations do not change and Undo/Redo behaviour remains intact.

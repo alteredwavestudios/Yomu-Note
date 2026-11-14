@@ -1,0 +1,44 @@
+name: Check source
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+# Ensure Python uses UTF-8 on all three platforms.
+env:
+  PYTHONUTF8: '1'
+jobs:
+  tests:
+    name: Tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-15]
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Qt runtime libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libopengl0 libgl1 libglib2.0-0 libdbus-1-3 libxcb-cursor0 libxkbcommon-x11-0
+      - name: Install application and test dependencies
+        run: python -m pip install -r requirements.txt pytest
+      - name: Check Python syntax
+        run: python -m compileall -q main.py yomunote ocr_packaging tests
+      - name: Run regression suite
+        run: python YomuNote-Full-Test-Audit.py --per-file-timeout 90
+      - name: Upload test diagnostics (including failures and hangs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Audit-${{ matrix.os }}
+          path: YomuNote-Test-Audit-*.zip
+          if-no-files-found: warn

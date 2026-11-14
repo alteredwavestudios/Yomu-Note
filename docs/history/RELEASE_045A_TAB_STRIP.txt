@@ -1,0 +1,30 @@
+YOMU NOTE v0.4.5a — TAB STRIP POLISH CANDIDATE
+
+Based on the v0.4.5 unified-history candidate. This is a focused UI update
+BEFORE Stage 3 vector annotations (those are still planned for v0.5.x).
+
+Changes:
+- The Add Tab + button moves immediately to the right of the last tab
+  when the entire tab strip fits on screen.
+- When the strip overflows, the + remains accessible at the right and Qt's
+  built-in left/right scroll arrows reveal off-screen tabs.
+- Vertical mouse wheel over the tabs and horizontal trackpad gestures scroll
+  left/right instead of unexpectedly switching the active project tab.
+- Tab reordering, renaming, opening and closing all recalculate the layout.
+- The unified Undo/Redo and project data storage are unchanged.
+
+TESTING: Python compilation and non-GUI tests have been run here. PySide6 was
+not installed in the authoring environment: run the supplied GUI tests on
+Windows or macOS, and visually confirm the tab row before replacing v0.4.5.
+
+Windows source launch in the extracted folder:
+    uv venv --python 3.12 .venv
+    uv pip install --python .venv\Scripts\python.exe -r requirements.txt
+    .\.venv\Scripts\python.exe main.py
+
+Build Windows app:
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+Build an Inno Setup installer (install Inno Setup 6 or 7 first):
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep a copy of the working v0.4.5 ZIP and back up .yominote documents.

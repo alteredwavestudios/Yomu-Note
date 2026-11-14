@@ -1,0 +1,51 @@
+# Local Python/Qt build state
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.build/
+build/
+dist/
+installer/
+*.spec
+
+# Personal notebooks, legacy projects and recovery files
+*.yomunote
+*.yomunote.*
+*.yominote
+*.yomunote-shm
+*.yomunote-wal
+*.yominote-shm
+*.yominote-wal
+
+# Editor/OS junk
+.DS_Store
+Thumbs.db
+*.log
+
+# Avoid accidental publication of secrets and exported release artefacts
+.env
+.env.*
+*.pem
+*.p12
+*.pfx
+*.key
+*.zip
+*.patch
+*.dmg
+*.exe
+*.app/
+*.sqlite
+*.sqlite3
+.idea/
+.vscode/
+.coverage
+htmlcov/
+
+# Local repair backups
+*.bak
+*.orig
+*.rej

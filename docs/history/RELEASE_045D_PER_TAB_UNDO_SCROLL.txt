@@ -1,0 +1,22 @@
+Yomu Note v0.4.5d — Per-Tab History and Reading-Scroll Hotfix
+
+Based on the v0.4.5b Empty-Line Font Hotfix candidate.
+
+Only the existing yomunote/window.py file was changed.
+
+- Histories are now independent per notebook tab. Each tab's notes, annotations,
+  and pages still share a single timeline, and all histories retain 1,000-action
+  and 200 MiB estimated custom-data limits.
+- The active tab determines which history the Ctrl/Cmd+Z / Redo shortcuts use.
+- Native QTextDocument edits are registered to their own pane's history.
+- Deleted-then-restored tabs retain their original native and combined histories.
+- Tab creation is recorded in the originating tab's timeline, and tab deletion
+  is recorded in a surviving tab's timeline so Undo/Redo can remain reachable.
+- The annotation history separator restores notes scrollbar position after
+  transient cursor moves, avoiding unintended jumps to an offscreen caret.
+
+No changes to font sizing, page importing, tab-strip layout, themes, rendering,
+PDF preview, build/installer scripts, or saved notebook schema.
+
+Validation here: Python syntax and headless tests; Qt GUI tests need to be run
+on the target Windows desktop (PySide6 not available in this environment).

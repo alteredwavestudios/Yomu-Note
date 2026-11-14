@@ -1,0 +1,58 @@
+YOMU NOTE v0.5.3 — COMPACT ANNOTATIONS & QUICK EDIT (TEST CANDIDATE)
+=======================================================================
+
+Base: v0.5.2a Selection & Colour UI Hotfix
+
+Changes (intentionally narrow):
+- Rectangle outlines use sharp miter joins instead of rounded joins; freehand
+  pens and freehand Multiply markers retain their rounded caps and joins.
+- Straight lines remain flat-capped; arrows are closed, filled, sharp-tipped
+  polygons with separate shaft width, head width and head length controls.
+- Existing annotation stroke thickness editor supports 0.5–100 units.
+- Shift and Alt/Option modify existing shape resizing: preserve original
+  proportions/direction (Shift), resize around centre (Alt), or both.
+- Drawing a shape, rectangle highlight or line highlight switches to Select,
+  selects the finished mark and exposes a floating Quick Edit panel. Freehand
+  pen and marker remain continuous to support writing/sketching.
+- Quick Edit is one reusable Qt widget owned by the active preview viewport.
+  It previews thickness/head changes without changing saved history; releasing
+  sliders commits one existing per-tab Undo/Redo action. It hides on selection
+  clearing, while dragging/resizing, and on the Close button.
+- Annotation UI: small Select, Pan, Draw (pen/line/arrow/rectangle/ellipse),
+  Highlight (marker/rectangle/line), Erase (individual/clear current page),
+  Appearance palette and Page Link tools. Appearance/quick colours/fill/alpha
+  are reused from v0.5.2a inside one popup, not a permanent toolbar row.
+- Page navigation arrows appear in the Pages & Images header and on either
+  side of the page-position label. The width-cycle icon is now a grid.
+  Existing previous/next shortcuts and page navigation callbacks are unchanged.
+- Existing notebook mark fields remain valid, with OPTIONAL arrowhead values.
+  Old arrows without head values still render using defaults.
+
+Exact scope:
+  yomunote/window.py — annotation canvas, annotation toolbar, permitted page
+                       navigation control relocation, floating Quick Edit
+  yomunote/vector_marks.py — width validation, optional arrowhead properties,
+                             Shift/Alt proportional resize behaviour
+  yomunote/__init__.py, Inno installer and installer script — version bump
+  tests/*052* and tests/*053* — updated limits and new regression coverage
+
+Explicitly NOT changed: NotesEditor/editor.py, notes Undo/Redo internals,
+platform_shortcuts.py, tab management, PDF preview cache/render workers,
+page insertion/reordering, file formats, notebook layout, global shortcuts.
+
+Compatibility: old marks without optional arrowhead fields remain valid.
+Normal notebook backups are still recommended before using any test build.
+
+Verification at packaging:
+- Python syntax compile, full headless pytest regression suite.
+- PySide6-dependent tests included but not run in the packaging environment.
+- Source archive integrity and file-by-file scope check.
+
+Run from extracted source on Windows:
+  .\run-windows.bat
+
+Build installer, after setting up the project's .venv as usual:
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep the v0.5.2a or v0.5.1 source candidate available for rollback while testing.

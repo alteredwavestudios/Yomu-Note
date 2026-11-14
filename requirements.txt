@@ -1,0 +1,8 @@
+# Runtime dependencies for Python 3.10+ (Windows / macOS / Linux).
+# IMPORTANT: updates to native PDF/image parsers require a new platform build
+# and an import/OCR smoke test before releasing installers to end users.
+PySide6>=6.7,<7
+# 5.15.2 (2026-11-09) includes PDFium/native lifecycle security fixes.
+pypdfium2>=5.15.2,<6
+# 12.3.0 fixed multiple 2026 Pillow parser security advisories.
+Pillow>=12.3,<13

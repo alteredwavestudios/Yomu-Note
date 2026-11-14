@@ -1,0 +1,41 @@
+YOMU NOTE v0.7.3a — SMART IMPORT COLLAPSE + CHAPTER PLACEHOLDER HOTFIX
+10 November 2026 — Source candidate
+
+WHAT CHANGED
+============
+1. SMART IMPORT GROUP VISIBILITY
+   The options dialog now offers 'Collapse all newly imported groups and
+   subgroups', CHECKED by default on new installs. Untick to initially expand
+   them. The choice is remembered for future imports. It never changes the
+   collapsed state of existing folders. In the chapter review window, the
+   outline starts collapsed with a separate 'Expand all chapters in review'
+   switch for convenience. Both decisions affect visibility only.
+
+2. CORRECT CHAPTER PLACEHOLDERS
+   The custom PAGE LABEL pattern accepts [chapter] or {chapter}. Both are
+   resolved from the final top-level chapter boundaries approved in the
+   Smart Import review, including any manually moved boundary.
+
+   Example: 'Chapter [chapter] — Page [page]'
+   Pages 1-3 in the first chapter -> Chapter 1 — Page 1..3
+   Pages 4-6 in the second chapter -> Chapter 2 — Page 4..6
+
+   Chapter numbers are 1-based ordinal top-level heading numbers per SOURCE
+   FILE. Level-2 and level-3 subsections don't increment the chapter.
+   Front matter before the first heading and files without any chapter
+   markers use Chapter 1. This placeholder does not parse digits from title
+   strings such as 'Chapter 8'. Use [page]/[n] for page numbers. Other
+   whitelisted tokens accept square or curly brackets too.
+
+3. NO UNRELATED REGRESSIONS INTENDED
+   Keeps the same notebook format, stable page IDs, PDF render/import code,
+   Undo snapshots, notes, annotations, OCR, Pomodoro, themes, and existing
+   reading-progress/celebration behaviour.
+
+TESTING
+=======
+348 pure / non-native tests passed; 43 GUI/platform-dependent tests skipped
+because PySide6 is unavailable in the test environment. The real-PDF
+end-to-end test covers edited bookmark boundaries, page labels, collapsed
+state and successful save/reload. Native Windows GUI testing is still needed.
+See TEST_WINDOWS_V073A.md and AUDIT_073A.md.

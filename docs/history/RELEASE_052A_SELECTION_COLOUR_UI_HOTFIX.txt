@@ -1,0 +1,32 @@
+YOMU NOTE v0.5.2a — ANNOTATION SELECTION & COLOUR UI HOTFIX
+
+Base: v0.5.2 Annotation Appearance Candidate, retaining the working v0.5.1 fundamentals.
+
+Fixes:
+- QGraphicsItem.mapRectToScene() returns QRectF. The erroneous extra .boundingRect()
+  call caused repeated exceptions in annotation selection, move and resize handles.
+  Removed that extra call at both sites.
+- Replaced the sprawling alpha fields and Fill/Stroke checkboxes with stacked
+  stroke and fill swatches, a colour swap, a single Thickness control and an
+  Opacity popup with separate stroke/highlight and fill sliders.
+- Swatch single click selects the palette target; double click picks a custom
+  colour. Right click swatches for No Fill / No Stroke where applicable.
+  Context-menu quick colours may also explicitly target Stroke, Fill, Highlight.
+- Native colour picker modifies colour only; alpha is preserved. Opacity sliders
+  preview in place and record one undo step per completed gesture.
+- Selected annotations load their own properties and edits use per-tab Undo/Redo.
+  Deselecting leaves per-tool drawing defaults unchanged.
+
+Scope: Only yomunote/window.py application behaviour changed; the app version,
+installer version/output filenames, tests and documentation are updated. Text
+editor, shortcuts, tabs, page navigation, PDFs, caches and existing notebook
+storage formats are unchanged.
+
+Validation: 118 headless tests passed; 19 PySide6-dependent test modules skipped.
+PySide6 cannot be installed in this execution environment; native Windows Qt
+interaction has not been verified. Build/run as a test candidate and keep a
+back-up of existing notebooks and the prior working app.
+
+Build from the extracted source folder in PowerShell:
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1

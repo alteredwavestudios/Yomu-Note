@@ -1,0 +1,51 @@
+YOMU NOTE v0.7.0 — GROUPS & NESTED PAGE NAVIGATION
+SOURCE TEST CANDIDATE — WINDOWS/MAC GUI NEEDS VERIFICATION
+
+WHAT YOU CAN DO
+
+* Switch between Groups and the original Thumbnails navigator.
+* Create an empty group or a subgroup within an existing group.
+* Select adjacent page entries and put them into a named group.
+* Rename folders and collapse/expand nested sections.
+* Drag pages and whole folders to rearrange them in the tree.
+* Move selected pages into an existing group from the right-click menu.
+* Ungroup to keep pages, or Delete group AND pages with confirmation.
+* Undo/Redo a tree edit in the notebook tab where it occurred.
+* Drag external files onto a group to import into that folder.
+* Use the original thumbnail navigator to add, rename and manage pages.
+
+WHY THE FLAT PAGE LIST STILL EXISTS
+
+The original Project.pages list is the source of truth for page order,
+PDF rendering, annotations and next/previous-page navigation.  The group
+tree holds page IDs, titles for groups and collapse state, not extra PDFs.
+Collapsed children remain in the page order.
+
+SAFETY
+
+A group edit is rejected if any page is missing or duplicated.
+Ungroup preserves all pages; deleting a group and its pages is separate
+and requires confirmation. The former contents can be restored by Undo
+during the current session. Clean exports only include live pages.
+The navigation mode and expanded state do not rewrite source media.
+
+LIMITATIONS OF THIS FIRST RELEASE
+
+- Automatic folder creation for multipage imports and importing embedded
+  PDF outline/chapter markers are planned for v0.7.1.
+- Bookmarks, comments, linked notes and group-jump shortcuts belong to
+  v0.7.2 and are NOT in this candidate.
+- The Groups tree shows titles, not thumbnails. The original thumbnail
+  view remains available one click away.
+- A legacy thumbnail reorder which splits an existing group creates a
+  separate '(continued)' section to keep reading order unambiguous.
+- Cross-tab transfers still use the original transfer system and have
+  not gained full cross-tab Undo in this release.
+- 36 GUI-dependent tests could not run in the headless environment.
+
+WINDOWS BUILD
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+KEEP A COPY OF YOUR WORKING v0.6.7c NOTEBOOK BEFORE TESTING.

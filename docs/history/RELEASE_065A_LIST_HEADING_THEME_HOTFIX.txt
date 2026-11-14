@@ -1,0 +1,61 @@
+YOMU NOTE v0.6.5a — LIST, HEADING & DIALOG THEME HOTFIX
+SOURCE TEST CANDIDATE
+
+WHY THIS BUILD EXISTS
+
+Some older rich-text paragraphs include formatting that can shift
+Qt list markers away from their text. Newly created list items also
+inherited block font sizes, and pressing Return sometimes scrolled
+to the beginning of a long document.
+
+CHANGES
+
+1. List alignment and marker size
+   - Keep native Qt QTextList markers (no fake characters or HTML spans).
+   - Normalise horizontal block offsets and marker block font size.
+   - Apply the same normalisation when Return inserts a new list item.
+
+2. Nested lists
+   - Use native solid, hollow and square bullet markers by level.
+   - Allow repeated Ctrl/Cmd+] indentation when a preceding list
+     item exists, including when the current item is the first
+     item in a newly created sublist.
+   - Ctrl/Cmd+[ lifts one list item toward the top level.
+   - Neither shortcut edits neighbouring unselected paragraphs.
+   - Tab and Shift+Tab bindings remain intentionally unchanged.
+
+3. Scrolling
+   - Group a list Return edit using the cursor at the actual
+     editing position, not a separate cursor at document start.
+   - Preserve the previous visible reading anchor while keeping
+     the new caret in its newly inserted list item.
+
+4. Headings
+   - The heading dropdown reads the real QTextBlock heading level
+     whenever the caret or selection changes.
+   - Selections spanning different heading levels display Mixed.
+   - Applying H1–H6 to selected paragraphs remains one Undo step.
+
+5. Dialog themes
+   - The application applies a global Qt QPalette on theme changes.
+   - The shared QSS now styles QDoubleSpinBox and all spin-box
+     variants, not just QSpinBox.
+   - New numeric-setting dialogs should inherit colours without
+     adding an individual stylesheet.
+
+TESTING
+
+- Run `python -m pytest -q` with dependencies installed.
+- Live Qt GUI tests are in tests/test_v065a_editor_gui.py.
+- On Windows: select paragraphs and apply bullets/numbering;
+  press Return deep into a long document; indent one item
+  repeatedly; test H1/H2/Mixed heading display; open Page Setup
+  in light and dark themes.
+- No PySide6 Qt runtime was available in the packaging environment.
+
+BUILD / INSTALLER (WINDOWS POWERSHELL)
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+
+Keep the previous 0.6.5 source/install as a rollback.

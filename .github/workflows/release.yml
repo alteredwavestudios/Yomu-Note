@@ -1,0 +1,141 @@
+name: Build draft release (Windows, macOS)
+# The source TAG is the release trigger. No binary is published automatically.
+# Windows and both macOS builds must succeed before a DRAFT release is created.
+# Linux is source-only; its tests remain in ci.yml.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing pushed tag to rebuild (e.g. v0.8.1b)'
+        required: true
+        default: 'v0.8.1b'
+permissions:
+  contents: read
+# Ensure Windows Python reads source as UTF-8, not cp1252.
+env:
+  PYTHONUTF8: '1'
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Windows build dependencies
+        shell: pwsh
+        run: |
+          choco install tesseract innosetup -y --no-progress
+          python -m venv .venv
+          .venv\Scripts\python.exe -m pip install -r requirements.txt pytest
+      - name: Test Windows source
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: .venv\Scripts\python.exe YomuNote-Full-Test-Audit.py --per-file-timeout 90
+      - name: Upload Windows test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Audit-Windows
+          path: YomuNote-Test-Audit-*.zip
+          if-no-files-found: warn
+      - name: Package Windows app + installer with offline OCR
+        shell: pwsh
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build-installer-windows.ps1
+          New-Item -ItemType Directory -Force release-assets | Out-Null
+          Copy-Item installer\YomuNote_Setup_v0.8.1b.exe release-assets\
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YomuNote-Windows-Setup
+          path: release-assets/*.exe
+          if-no-files-found: error
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            architecture: arm64
+          - os: macos-15-intel
+            architecture: x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install macOS build dependencies
+        run: |
+          brew list tesseract >/dev/null 2>&1 || brew install tesseract
+          python -m venv .venv
+          .venv/bin/python -m pip install -r requirements.txt pytest
+      - name: Test macOS source
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: .venv/bin/python YomuNote-Full-Test-Audit.py --per-file-timeout 90
+      - name: Upload test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Audit-${{ matrix.architecture }}
+          path: YomuNote-Test-Audit-*.zip
+          if-no-files-found: warn
+      - name: Build .app and DMG with local OCR
+        env:
+          CI: 'true'
+        run: |
+          zsh build-mac.command
+          bash scripts/package-macos-dmg.sh "${{ matrix.architecture }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YomuNote-macOS-${{ matrix.architecture }}
+          path: release-assets/*.dmg
+          if-no-files-found: error
+
+  draft-release:
+    needs: [windows, macos]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: YomuNote-*
+          merge-multiple: true
+      - name: Check Windows and both macOS downloads exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -lh release-assets
+          test -s release-assets/YomuNote_Setup_v0.8.1b.exe
+          test -s release-assets/YomuNote-0.8.1b-macOS-arm64-unsigned.dmg
+          test -s release-assets/YomuNote-0.8.1b-macOS-x86_64-unsigned.dmg
+          ( cd release-assets && sha256sum * > SHA256SUMS.txt )
+      - name: Create unpublished draft with installers
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          gh release create "$RELEASE_TAG" release-assets/* \
+            --verify-tag --draft --prerelease \
+            --title "Yomu Note $RELEASE_TAG (pre-release)" \
+            --notes-file RELEASE_NOTES_v0.8.1b.md
+          echo 'Open the draft release, verify each download, then publish manually.' >> "$GITHUB_STEP_SUMMARY"

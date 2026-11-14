@@ -1,0 +1,79 @@
+YOMU NOTE v0.6.7 — TABLE RESIZING & SHORTCUTS
+SOURCE TEST CANDIDATE · NOT YET DESKTOP VERIFIED
+
+WHAT IS NEW
+
+1. Borderless tables now start with 4 px of cell padding.
+   This keeps temporary guides away from the text.
+   The guides are still painted only on the screen.
+   They never become saved table borders.
+
+2. Drag an internal column divider to change the widths
+   of the two neighbouring columns. The remaining columns
+   retain their proportions. A drag adds ONE Undo entry
+   when the left mouse button is released.
+
+3. Drag a horizontal row boundary to add or remove extra
+   vertical space. The row still grows naturally as text
+   gets longer. Qt doesn't offer native fixed minimum row
+   height, so this uses per-cell bottom padding instead.
+   A double-click is not needed; use a normal drag.
+
+4. The small handle at the upper-left corner selects the
+   entire table. It is only a screen control.
+
+5. Table > Table size and spacing offers precise controls
+   for the current column and row in one Undoable action.
+   It also remains available from the table context menu.
+
+6. Add row above/below and column left/right are available
+   through the toolbar menu, right-click and shortcuts.
+   All commands use real QTextTable structures, not HTML
+   replacement, so notes history and cell data are kept.
+
+7. Page navigator previous/next buttons now display their
+   existing keyboard shortcuts when hovered.
+
+SHORTCUTS (while the notes editor has keyboard focus)
+
+Windows/Linux               macOS
+Ctrl+Shift+T                Command+Shift+T     Insert table
+Ctrl+Alt+Shift+Up           Cmd+Option+Shift+Up   Row above
+Ctrl+Alt+Shift+Down         Cmd+Option+Shift+Down Row below
+Ctrl+Alt+Shift+Left         Cmd+Option+Shift+Left Column left
+Ctrl+Alt+Shift+Right        Cmd+Option+Shift+Right Column right
+
+Page navigation is unchanged:
+Ctrl+Alt+Up/Down on Windows/Linux;
+Cmd+Option+Up/Down on macOS.
+
+SAFETY & COMPATIBILITY
+
+- No change to the .yominote notebook format.
+- Tables remain native Qt document objects saved in notes HTML.
+- No removal of deleted content from history while Undo is possible.
+- Clean Notebook Export behaviour stays unchanged.
+- New table padding applies only to NEW tables. Saved tables
+  do not have their formatting rewritten on open.
+- Insertion through a merged cell is blocked rather than
+  unexpectedly changing its ownership.
+- Fixed-width imported tables may use Equal-width columns
+  before drag resizing; the overlay never guesses widths.
+
+DESKTOP VERIFICATION NEEDED
+
+PySide6 was not available in this build environment, so
+actual Qt rendering, row padding HTML round-trip and
+click/drag geometry must be tested on Windows/macOS.
+Use a copied notebook until this test candidate is verified.
+
+Files with implementation details:
+  yomunote/notes_tables.py
+  yomunote/table_grid.py
+  yomunote/editor.py
+  yomunote/platform_shortcuts.py
+  yomunote/window.py
+  tests/test_v067_table_geometry_shortcuts.py
+  tests/test_v067_tables_gui.py
+
+Refer to TABLE_RESIZING_BEGINNERS_GUIDE.md for the basics.

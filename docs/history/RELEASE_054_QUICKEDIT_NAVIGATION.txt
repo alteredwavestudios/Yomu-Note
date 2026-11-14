@@ -1,0 +1,27 @@
+YOMU NOTE v0.5.4 — ANNOTATION UI POLISH & NAVIGATOR VISIBILITY
+Source candidate for Windows/macOS manual testing. Built on v0.5.3.
+
+CHANGES (scoped to annotation/workspace UI):
+- One Quick Edit panel for stroke/fill colours, opacity, thickness & arrowhead sizes.
+- Inline 0.5-100 pt thickness slider with exact numeric QDoubleSpinBox input.
+- Draggable Quick Edit title/grip, theme-aware light/dark styling, soft shadow.
+- Select, Pan, Draw, Highlight, Erase, Clear, Colour (plus Link) have comfortable labels.
+- Clear separate from Erase. Highlight grouped subtools unchanged.
+- Page shelf hide/show via preview-header icon and View > Show Page Navigator.
+- Sidebar visible state remembered with QSettings; preset width cycle unchanged.
+- Existing annotation history, PDF render and NotesEditor are unchanged.
+
+MANUAL TEST PLAN (PySide6 desktop required):
+1. Draw rectangle, select it, recolour stroke/fill, change both opacity sliders;
+   drag thickness, undo once, redo once; save and reopen.
+2. Draw arrow and line highlight; confirm head sliders and line thickness.
+3. Drag Quick Edit by header, edit appearance: no positional snap-back.
+4. Light theme and dark theme: check numeric thickness, popup readability,
+   button contrast, and drop shadow. Change theme while panel is open.
+5. Click away closes Quick Edit. Colour opens the same editor for tool defaults.
+6. Hide sidebar via header and View, change tabs, restart, restore; preview
+   navigation arrows and existing shortcuts work without sidebar.
+7. Narrow the preview and sidebar; confirm toolbar wraps without clipping.
+
+The Qt GUI tests are included but are skipped in environments without PySide6.
+Windows scripts: build-windows.ps1, build-installer-windows.ps1.

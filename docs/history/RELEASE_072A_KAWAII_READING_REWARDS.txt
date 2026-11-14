@@ -1,0 +1,56 @@
+Yomu Note v0.7.2a — Corrected Reading Rewards and Kaomoji (source candidate)
+============================================================================
+
+This is a corrective rebuild from v0.7.2, itself based on v0.7.1a.
+Only the following existing source modules have changed:
+  yomunote/window.py          Header totals, reading signals, preferences, notices
+  yomunote/page_groups_ui.py  Checkbox position/tick contrast and GROUP bar easing
+  yomunote/ui.py              HP bars, Kawaii notification, Pomodoro notice signal
+  yomunote/focus_logic.py     Ten reminders per phase with Japanese kaomoji
+One new Qt-free module: yomunote/reading_rewards.py
+Also amended: changelog and GUI test expectations; new regression tests.
+
+Reading checkboxes
+------------------
+* The group checkmark now overlays the native control at Qt's original,
+  SHORTENED title area. This addresses the blank/unchanged native checkbox.
+* Read uses a visible thick tick, partial uses a dash, unread is pastel.
+* Colour and mark contrast follow the active light/dark theme.
+* Qt remains responsible for clicks, keyboard access, group flags and Undo.
+
+Animations and celebrations
+---------------------------
+* Notebook and active-tab progress bars are fluid (470ms ease in/out cubic).
+* The custom group/subgroup progress bars ease using one shared 420ms animator.
+* A short glint is reserved for upward movement. Decreases never flash.
+* No unnecessary flash on opening an already-completed notebook.
+* Notebook summary stays in the header and uses all LIVE tab pages only.
+* Deliberate completion of nested group, tab or notebook gives exactly one
+  highest-priority message. A notebook at 100% outranks all other rewards.
+* Milestones at 25/50/75% get a quieter card without confetti.
+* Individual cards include named groups/tabs/notebook, varied responses,
+  original Japanese kaomoji, gentle fade and small motion.
+* Kawaii is the default celebration style. Options are Gentle (default),
+  Playful, None (static), as well as completion/confetti/milestone toggles.
+* Existing Reduce animations preference turns off all new effects.
+
+Pomodoro
+--------
+* Original timer durations, WAV jingles, sound settings and monotonic timer
+  are unchanged. Ten messages for each focus/break mode are in focus_logic.py.
+* The first message fires at completion, later ones up to minute 9; none at
+  or beyond minute 10. No backlog after sleep.
+* Previously these were tooltips only. Now each shows in a themed, dismissible,
+  mouse-transparent (non-modal) card at the top of the reading workspace.
+* Final focus reminder is the user's exact hyperfocusing wording.
+* Custom user-edited messages are deliberately deferred; 150 characters per
+  message is the bounded design policy for a future preferences UI.
+
+Scope and verification
+----------------------
+* Unmodified: Project/Notebook persistence, imports, OCR, notes editor,
+  annotations, PDF/image rendering, memory caches, and build scripts.
+* Run: python -m pytest -q
+* Run the optional native GUI checks on Windows: see TEST_WINDOWS_V072A.md.
+* This environment lacks PySide6; do not consider GUI rendering validated.
+* Keep v0.7.1a or other working version available for rollback.

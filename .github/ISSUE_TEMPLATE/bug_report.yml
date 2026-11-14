@@ -1,0 +1,41 @@
+name: Bug report
+labels: [bug]
+description: Report a crash, incorrect behaviour or regression
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting! Please don't upload personal `.yomunote` files, private readings or unredacted student information."
+  - type: input
+    id: version
+    attributes:
+      label: Yomu Note version
+      placeholder: v0.8.1b (from Help → About)
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Operating system
+      options: [Windows, macOS Apple Silicon, macOS Intel, Linux, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Describe what you clicked or imported, in order.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or screenshots (redacted)
+      description: Do not include sensitive notebook contents or credentials.
+    validations:
+      required: false

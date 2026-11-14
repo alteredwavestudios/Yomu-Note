@@ -1,0 +1,62 @@
+YOMU NOTE v0.6.4 — SAFETY & DATA PROTECTION
+SOURCE TEST CANDIDATE — 8 NOVEMBER 2026
+
+IMPORTANT CHANGES
+
+1. All PDFium operations now use one process-wide re-entrant lock.
+   This covers indexing, thumbnail/preview rendering, and PDF OCR.
+
+2. SQLite manifest queries now use parameter bindings rather than
+   double-quoted string literals.
+
+3. Portable notebooks now store only originals/pages referenced by
+   live pages. In-session Undo can continue using temporarily held
+   source files. Serialized orphaned annotations are pruned.
+
+4. SQLite secure_delete is enabled during saves. File → Export
+   Clean Notebook for Sharing creates a separate compact SQLite
+   copy to remove free-page residue before sharing.
+
+   Old backups remain separate and may still contain deleted data.
+
+5. Notebook entry paths reject Windows drive/alternate-stream syntax,
+   reserved device names, and trailing dot/space components.
+
+6. A damaged annotation, colour, page setup, panel order, or column
+   width can be recovered into a DIFFERENT copy of the notebook.
+   Structural/path errors still fail. The original stays untouched.
+
+7. Switching pages or tabs during OCR no longer automatically
+   cancels the result. Recognition finishes and stores its text
+   for later review in the originating tab, without clobbering
+   a clipboard that the user may have changed.
+
+8. Missing startup notebooks produce a visible warning instead of
+   silently acting as though a new notebook were the same file.
+
+9. Local rotating error logs now retain background tracebacks.
+   OCR's Tesseract subprocess uses no-window flags on Windows.
+
+10. JSON manifests are hashed to detect same-size changes on
+    coarse-timestamp filesystems. Backup retention uses notebook
+    ID rather than a mutable notebook title.
+
+11. Focus timer preferences are parsed with safe fallbacks.
+
+12. New educational comments and BEGINNERS_CODE_GUIDE.md explain
+    basic concepts in short lines for narrower editor windows.
+
+LIMITATIONS / FUTURE WORK
+
+- Undo for moving pages BETWEEN tabs is not yet implemented.
+  Original source files remain available during the session,
+  avoiding immediate deletion of assets referenced by history.
+
+- Very large notebook open/save operations still do some work on
+  the GUI thread. Clean-copy VACUUM now runs in a background task,
+  but async notebook save/load needs separate architecture work.
+
+- Qt-dependent desktop interactions require Windows/macOS testing.
+- Old backup files are not wiped by cleaning the current notebook.
+
+KEEP v0.6.3 AVAILABLE AS A ROLLBACK UNTIL DESKTOP TESTING PASSES.

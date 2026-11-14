@@ -1,0 +1,29 @@
+Yomu Note v0.7.6 — Memory Lifecycle & Calmer Autosave
+===================================================
+
+Scope: stability ONLY. Based on v0.7.5; compatible with existing .yomunote and
+older .yominote notebooks. This source build does not change notebook data.
+
+Autosave:
+- On the first unsaved change, arm a ONE-MINUTE single-shot timer.
+- Further typing does NOT postpone it; continuous work remains protected.
+- Once saved successfully, stop the timer until another change occurs.
+- If the save fails, keep the dirty state and retry in one minute.
+- Manual Save, switching tabs, close/open operations, and the separate
+  10-minute rotating recovery-backup schedule are unchanged.
+- A manual Save still serialises original rich-text HTML, not a QTextDocument
+  reload, so native per-note Undo/Redo stacks remain intact.
+
+Notebook lifecycle:
+- When you close a notebook or open a different one, Yomu Note now keeps its
+  extracted working files ONLY while the old panes' background worker tasks
+  remain in flight.
+- Once those jobs complete on the GUI thread, the old panes receive Qt's
+  deferred deletion, then the old TemporaryDirectory is cleaned up on a
+  later UI event-loop pass. Windows transient locks cause retries.
+- Undoable deleted TABS in the CURRENT notebook are still parked; they cannot
+  be reclaimed early without changing valid Undo/Redo behaviour.
+
+Native Windows/macOS checks in TEST_WINDOWS_MAC_V076.md are necessary. The
+available tests cover the pure-Python retirement policy but cannot simulate
+all native Qt worker and window lifetimes on this test host.
